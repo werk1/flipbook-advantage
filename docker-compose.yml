@@ -1,0 +1,53 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+
+    volumes:
+      - ./mongo-data:/data/db
+    networks:
+      - flipbook-advantage-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 300s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    image: reg.werk1.at/flipbook-advantage:latest
+    container_name: flipbook-advantage
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT:-3601}:3000"
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/flipbook-advantage}
+
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      APP_FONTS_GOOGLE_API_KEY: ${APP_FONTS_GOOGLE_API_KEY:-}
+      PAYLOAD_CONFIG_PATH: dist/payload.config.js
+      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./media:/app/media
+      - ./assets:/app/assets
+      - ./app-font-assets:/app/app-font-assets
+      - ./data:/app/data
+    networks:
+      - flipbook-advantage-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+
+networks:
+  flipbook-advantage-network:
+    driver: bridge
