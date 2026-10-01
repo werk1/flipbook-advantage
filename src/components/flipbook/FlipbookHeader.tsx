@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { FlipbookMenuItem } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
 import { flipbookLocaleQuery } from '@/lib/blocks/flipbook/locale'
+import { pickLogoVariants, type ClientLogo } from '@/lib/theme/clientLogoVariants'
 import styles from './FlipbookHeader.module.css'
 
 const MENU_LABEL = 'Flipbooks'
@@ -12,6 +13,7 @@ export function FlipbookHeader({
   activeSlug,
   locale,
   title,
+  logo,
   tools,
   showMenu = false,
 }: {
@@ -19,11 +21,14 @@ export function FlipbookHeader({
   activeSlug?: string
   locale: string
   title: string
+  /** Client logo; replaces the title text (which stays as its alt text). */
+  logo?: ClientLogo
   /** Viewer controls shown at the right end of the bar. */
   tools?: ReactNode
   /** "Flipbooks" menu of all published books; hidden until the archive feature. */
   showMenu?: boolean
 }) {
+  const { main: mainLogo, dark: darkLogo } = pickLogoVariants(logo?.positive, logo?.negative)
   const [open, setOpen] = useState(false)
   const navRef = useRef<HTMLElement>(null)
   const localeQuery = flipbookLocaleQuery(locale)
@@ -47,7 +52,14 @@ export function FlipbookHeader({
   return (
     <header className={styles.header}>
       <a className={styles.brand} href={`/${localeQuery}`}>
-        {title}
+        {mainLogo ? (
+          <picture>
+            {darkLogo && <source srcSet={darkLogo.url} media="(prefers-color-scheme: dark)" />}
+            <img className={styles.logo} src={mainLogo.url} width={mainLogo.width} height={mainLogo.height} alt={title} />
+          </picture>
+        ) : (
+          title
+        )}
       </a>
       <div className={styles.end}>
       {showMenu && (

@@ -4,6 +4,7 @@ import { FlipbookReader } from '@/components/flipbook/FlipbookReader'
 import { resolveFlipbookLocale } from '@/lib/blocks/flipbook/locale'
 import { listPublishedFlipbooks, loadPublishedFlipbook, mapFlipbookToInput } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
 import { getPayloadClient } from '@/lib/payload/getPayloadClient'
+import { getClientLogo } from '@/lib/theme/clientLogo'
 
 const COPY: Record<string, { title: string; empty: string }> = {
   de: { title: 'Flipbooks', empty: 'Noch keine Flipbooks veröffentlicht.' },
@@ -33,12 +34,13 @@ export async function FlipbookHome({
   const slug = book && items.some((i) => i.slug === book) ? book : items[0]?.slug
   const doc = slug ? await loadPublishedFlipbook(payload, slug, locale) : null
   const input = mapFlipbookToInput(doc)
+  const clientLogo = await getClientLogo()
 
   if (!input || !slug) {
     return (
       <ClientLayout renderBeforeDeviceReady>
         <main style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
-          <FlipbookHeader items={items} locale={locale} title={copy.title} />
+          <FlipbookHeader items={items} locale={locale} title={copy.title} logo={clientLogo} />
           <div style={{ flex: 1, display: 'grid', placeItems: 'center' }}>{copy.empty}</div>
         </main>
       </ClientLayout>
@@ -58,6 +60,7 @@ export async function FlipbookHome({
         items={items}
         activeSlug={slug}
         siteTitle={input.title ?? copy.title}
+        clientLogo={clientLogo}
       />
     </ClientLayout>
   )

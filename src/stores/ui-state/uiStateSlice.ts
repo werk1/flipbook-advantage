@@ -49,7 +49,8 @@ export const createUIStateSlice: StateCreator<UIStateSlice> = (set, get) => {
 
         // Calculate new overlay states - both can now be managed automatically
         const newShowLoadingOverlay = !deviceInfo?.isReady
-        const newShowLandscapeOverlay = deviceInfo?.is_devicePL && !isFullscreen
+        const newShowLandscapeOverlay =
+          deviceInfo?.is_devicePL && !isFullscreen && !currentUI.suppressLandscapeOverlay
 
         // Handle loading overlay with simple delay
         if (currentUI.showLoadingOverlay !== newShowLoadingOverlay) {
@@ -299,7 +300,8 @@ export const createUIStateSlice: StateCreator<UIStateSlice> = (set, get) => {
         return {
           ui: {
             ...state.ui,
-            showLandscapeOverlay: deviceInfo?.is_devicePL && !isFullscreen,
+            showLandscapeOverlay:
+              deviceInfo?.is_devicePL && !isFullscreen && !state.ui.suppressLandscapeOverlay,
           },
         }
       }),

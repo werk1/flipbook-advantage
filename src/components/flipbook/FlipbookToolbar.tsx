@@ -2,6 +2,8 @@
 
 import { W1Button } from '@werk1/w1-system-ui'
 import type { W1FlipbookToolbarControls } from '@werk1/w1-system-flipbook'
+import { DevToolsButton } from './dev/DevToolsButton'
+import { IS_DEV } from './dev/devCurlTuning'
 import styles from './FlipbookToolbar.module.css'
 
 function ToolButton({
@@ -38,21 +40,44 @@ function ToolButton({
 
 /**
  * Viewer controls as W1 UI icon buttons (w1-system-ui `W1Button` + Lucide
- * icons): thumbnails, single/double page, zoom out/in, fullscreen.
+ * icons): PDF, thumbnails, single/double page, zoom out/in, fullscreen.
  */
 export function FlipbookToolbar({
   controls,
   orientation = 'horizontal',
+  showThumbnails = true,
+  showPdf = false,
 }: {
   controls: W1FlipbookToolbarControls
   /** `vertical` stacks the buttons (icon column of the side arrangement). */
   orientation?: 'horizontal' | 'vertical'
+  /** Thumbnail toggle; off where the navigation widget carries it. */
+  showThumbnails?: boolean
+  /** PDF link as an icon button (top bar). */
+  showPdf?: boolean
 }) {
-  const { zoom, fullscreen, thumbnails, spread, labels } = controls
+  const { zoom, fullscreen, thumbnails, spread, labels, pdf } = controls
   return (
     <div className={orientation === 'vertical' ? `${styles.tools} ${styles.toolsVertical}` : styles.tools}>
-      {thumbnails.enabled && (
-        <ToolButton icon="gallery_thumbnails" label={labels.thumbnails} onClick={thumbnails.toggle} pressed={thumbnails.open} />
+      {showPdf && (
+        <W1Button
+          as="a"
+          href={pdf.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          icon="file_pdf"
+          aria-label={pdf.label}
+          title={pdf.label}
+          appearance="ghost"
+          tone="neutral"
+          padding="xs"
+          lineWidth="none"
+          size="m"
+          className={styles.tool}
+        />
+      )}
+      {showThumbnails && thumbnails.enabled && (
+        <ToolButton icon="gallery_strip" label={labels.thumbnails} onClick={thumbnails.toggle} pressed={thumbnails.open} />
       )}
       {spread.enabled && (
         <ToolButton
@@ -78,6 +103,8 @@ export function FlipbookToolbar({
           pressed={fullscreen.active}
         />
       )}
+      {/* Dev only (next dev): shader tuning and colour scheme editor. */}
+      {IS_DEV && <DevToolsButton className={styles.tool} />}
     </div>
   )
 }
@@ -86,7 +113,8 @@ export function FlipbookToolbar({
 export function FlipbookToolbarBar({ controls }: { controls: W1FlipbookToolbarControls }) {
   return (
     <div className={styles.bar}>
-      <FlipbookToolbar controls={controls} />
+      {/* The thumbnail toggle sits in the navigation widget below. */}
+      <FlipbookToolbar controls={controls} showThumbnails={false} showPdf />
     </div>
   )
 }

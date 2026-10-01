@@ -1,6 +1,6 @@
 import { Metadata, Viewport } from 'next'
 import { LandscapeQrOverlay } from '@/components/layout/LandscapeQrOverlay'
-import { getAppPalette } from '@/lib/theme/appPalette'
+import { getActiveColorScheme } from '@/lib/theme/appColorScheme'
 import '@werk1/w1-system-widgets/styles.css'
 import './global.css'
 import './theme/palettes.css'
@@ -19,11 +19,13 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const palette = await getAppPalette()
+  const scheme = await getActiveColorScheme()
   return (
-    <html lang="de" data-app-palette={palette} suppressHydrationWarning>
+    <html lang="de" data-color-scheme-id={scheme.id} suppressHydrationWarning>
       <head>
         <link rel="stylesheet" href="/api/app-fonts.css" />
+        {/* Values are validated (colours/gradients only) before output. */}
+        <style id="app-color-scheme" dangerouslySetInnerHTML={{ __html: scheme.css }} />
       </head>
       <body>
         <LandscapeQrOverlay />

@@ -9,10 +9,11 @@ import path from 'path'
 import { buildConfig, type CollectionConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
-import { Users, Media, TextContent, Pages, Carousels, Flipbooks } from './payload/collections'
+import { Users, Media, TextContent, Pages, Carousels, Flipbooks, ColorSchemes } from './payload/collections'
 import { SiteSettings } from './payload/globals'
 import { TextWrapFeature } from '@/payload/lexical/text-wrap/feature.server'
 import { resetInterruptedFlipbookJobs } from '@/lib/flipbook'
+import { DEFAULT_COLOR_SCHEMES } from './lib/theme/colorSchemeTokens'
 import { AppFontAssets, AppFontFamilies, AppFontSnapshots } from './payload/app-fonts/collections'
 import { AppFontSettings } from './payload/app-fonts/globals'
 
@@ -126,6 +127,26 @@ async function ensureDefaultHomepage(payload: Parameters<NonNullable<Parameters<
   })
 }
 
+/** Creates the built-in colour schemes once, matched by their `key`. */
+async function ensureDefaultColorSchemes(payload: Parameters<NonNullable<Parameters<typeof buildConfig>[0]['onInit']>>[0]): Promise<void> {
+  for (const [key, scheme] of Object.entries(DEFAULT_COLOR_SCHEMES)) {
+    const existing = await payload.find({
+      collection: 'color-schemes',
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      pagination: false,
+      where: { key: { equals: key } },
+    })
+    if ((existing.docs?.length ?? 0) > 0) continue
+    await payload.create({
+      collection: 'color-schemes',
+      data: { key, name: scheme.name, light: scheme.light, dark: scheme.dark },
+      overrideAccess: true,
+    })
+  }
+}
+
 function readOriginList(value: string | undefined): string[] {
   return value
     ? value.split(',').map((s) => s.trim()).filter(Boolean)
@@ -166,6 +187,7 @@ export default buildConfig({
   onInit: async (payload) => {
     await ensureDefaultHomepage(payload)
     await resetInterruptedFlipbookJobs(payload)
+    await ensureDefaultColorSchemes(payload)
   },
   i18n: {
     supportedLanguages: { de, en, sl, it },
@@ -193,7 +215,7 @@ export default buildConfig({
     },
   },
 
-  collections: [Users, Media, TextContent, Pages, Carousels, Flipbooks, AppFontAssets, AppFontFamilies, AppFontSnapshots],
+  collections: [Users, Media, TextContent, Pages, Carousels, Flipbooks, ColorSchemes, AppFontAssets, AppFontFamilies, AppFontSnapshots],
   globals: [SiteSettings, AppFontSettings],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

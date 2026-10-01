@@ -24,22 +24,63 @@ export const SiteSettings: GlobalConfig = {
       localized: true,
     },
     {
-      name: "colorPalette",
-      label: { de: "Farbschema", en: "Color palette" },
-      type: "select",
-      required: true,
-      defaultValue: "graphite",
-      options: [
-        { label: { de: "Graphit", en: "Graphite" }, value: "graphite" },
-        { label: { de: "Advantage-Blau gedämpft", en: "Advantage blue (muted)" }, value: "advantage" },
-        { label: { de: "Salbei / Stein", en: "Sage / Stone" }, value: "sage" },
-      ],
+      name: "colorScheme",
+      label: { de: "Farbschema", en: "Color scheme" },
+      type: "relationship",
+      relationTo: "color-schemes",
       admin: {
         description: {
-          de: "Farben der Reader-Oberfläche. Hell oder Dunkel folgt automatisch dem System bzw. Browser der Besucher.",
-          en: "Colors of the reader UI. Light or dark follows the visitor's system or browser automatically.",
+          de: "Farben der Reader-Oberfläche (Collection Farbschemata). Ohne Auswahl gilt Graphit. Hell oder Dunkel folgt automatisch dem System bzw. Browser der Besucher.",
+          en: "Colors of the reader UI (Colour schemes collection). Graphite when empty. Light or dark follows the visitor's system or browser automatically.",
         },
       },
+    },
+    {
+      name: "clientLogo",
+      label: { de: "Kundenlogo", en: "Client logo" },
+      type: "group",
+      admin: {
+        description: {
+          de: "Logo: ersetzt den Namen links oben im Reader. Piktogramm: steht am Handy im Querformat oben in der schmalen Leiste. PNG mit transparentem Hintergrund. Ist nur eine Variante geladen, gilt sie für Hell und Dunkel.",
+          en: "Logo: replaces the name at the top left of the reader. Pictogram: sits at the top of the slim bar on phones in landscape. PNG with a transparent background. If only one variant is set it is used for light and dark.",
+        },
+      },
+      fields: [
+        {
+          name: "positive",
+          label: { de: "Logo positiv (für helle Flächen)", en: "Logo positive (for light surfaces)" },
+          type: "upload",
+          relationTo: "media",
+          filterOptions: { mimeType: { contains: "image" } },
+        },
+        {
+          name: "negative",
+          label: { de: "Logo negativ (für dunkle Flächen)", en: "Logo negative (for dark surfaces)" },
+          type: "upload",
+          relationTo: "media",
+          filterOptions: { mimeType: { contains: "image" } },
+        },
+        {
+          name: "pictogramPositive",
+          label: { de: "Piktogramm positiv (für helle Flächen)", en: "Pictogram positive (for light surfaces)" },
+          type: "upload",
+          relationTo: "media",
+          filterOptions: { mimeType: { contains: "image" } },
+          admin: {
+            description: {
+              de: "Quadratisches Bildzeichen für die schmale Leiste am Handy im Querformat. Ohne Piktogramm steht dort der Anfangsbuchstabe als rundes Zeichen in der Primärfarbe.",
+              en: "Square mark for the slim bar on phones in landscape. Without a pictogram the initial is shown as a round badge in the primary colour.",
+            },
+          },
+        },
+        {
+          name: "pictogramNegative",
+          label: { de: "Piktogramm negativ (für dunkle Flächen)", en: "Pictogram negative (for dark surfaces)" },
+          type: "upload",
+          relationTo: "media",
+          filterOptions: { mimeType: { contains: "image" } },
+        },
+      ],
     },
     {
       name: "navigation",

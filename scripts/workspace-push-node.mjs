@@ -52,7 +52,7 @@ const BUILD_SSH_DIR   = process.env.BUILD_SSH_DIR   || 'flipbook-advantage'
 const DEPLOY_SSH_HOST = process.env.DEPLOY_SSH_HOST
 const DEPLOY_SSH_USER = process.env.DEPLOY_SSH_USER
 const DEPLOY_SSH_PORT = process.env.DEPLOY_SSH_PORT || '22'
-const DEPLOY_SSH_DIR  = process.env.DEPLOY_SSH_DIR  || 'flipbook-advantage'
+const DEPLOY_SSH_DIR  = process.env.DEPLOY_SSH_DIR  || 'flipbook-system'
 const DOCKER_PASSWORD = process.env.DOCKER_PASSWORD || ''
 const NPM_TOKEN       = process.env.NPM_TOKEN       || ''
 

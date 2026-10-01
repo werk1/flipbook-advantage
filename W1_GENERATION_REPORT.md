@@ -1,6 +1,6 @@
 # W1 System – Generierungs-Report
 
-**Generiert am:** 2026-10-01 08:57:15 UTC
+**Generiert am:** 2026-10-01 10:07:24 UTC
 
 ---
 
@@ -84,31 +84,42 @@ _(keine)_
 - `flipbook-advantage/src/lib/flipbook/cleanup.ts`
 - `flipbook-advantage/src/lib/flipbook/cover.ts`
 - `flipbook-advantage/src/payload/blocks/FlipbookSection.ts`
+- `flipbook-advantage/src/components/flipbook/FlipbookHeader.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookHeader.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookHome.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookNavigationWidget.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookNavigationWidget.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookReader.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookReader.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookToolbar.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookToolbar.tsx`
+- `flipbook-advantage/src/components/flipbook/W1SystemMark.module.css`
+- `flipbook-advantage/src/components/flipbook/W1SystemMark.tsx`
+- `flipbook-advantage/src/components/flipbook/dev/ColorSchemeEditor.tsx`
+- `flipbook-advantage/src/components/flipbook/dev/CurlTuningPanel.tsx`
+- `flipbook-advantage/src/components/flipbook/dev/DevTools.module.css`
+- `flipbook-advantage/src/components/flipbook/dev/DevToolsButton.tsx`
+- `flipbook-advantage/src/components/flipbook/dev/devCurlTuning.ts`
+- `flipbook-advantage/src/components/flipbook/readerDevice.ts`
+- `flipbook-advantage/src/components/page/W1FlipbookSectionRenderer.tsx`
 - `flipbook-advantage/src/lib/blocks/flipbook/config.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/labels.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/locale.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/resolveFlipbookBlockInput.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/types.ts`
-- `flipbook-advantage/src/components/page/W1FlipbookSectionRenderer.tsx`
-- `flipbook-advantage/src/components/flipbook/FlipbookReader.tsx`
-- `flipbook-advantage/src/components/flipbook/FlipbookReader.module.css`
-- `flipbook-advantage/src/components/flipbook/FlipbookHeader.tsx`
-- `flipbook-advantage/src/components/flipbook/FlipbookHeader.module.css`
-- `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.tsx`
-- `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.module.css`
-- `flipbook-advantage/src/components/flipbook/FlipbookHome.tsx`
-- `flipbook-advantage/src/components/flipbook/FlipbookToolbar.tsx`
-- `flipbook-advantage/src/components/flipbook/FlipbookToolbar.module.css`
-- `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.tsx`
-- `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.module.css`
-- `flipbook-advantage/src/components/flipbook/FlipbookNavigationWidget.tsx`
-- `flipbook-advantage/src/components/flipbook/FlipbookNavigationWidget.module.css`
-- `flipbook-advantage/src/components/flipbook/readerDevice.ts`
+- `flipbook-advantage/src/lib/theme/appColorScheme.ts`
+- `flipbook-advantage/src/lib/theme/clientLogo.ts`
+- `flipbook-advantage/src/lib/theme/clientLogoVariants.ts`
+- `flipbook-advantage/src/lib/theme/colorSchemeTokens.ts`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/[slug]/page.tsx`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/flipbooks.module.css`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/page.tsx`
-- `flipbook-advantage/src/lib/theme/appPalette.ts`
 - `flipbook-advantage/src/app/(frontend)/theme/palettes.css`
+- `flipbook-advantage/src/payload/collections/ColorSchemes.ts`
 
 ---
 
@@ -180,12 +191,10 @@ _(keine)_
 - `autodeploy/multi/validate-runtime-packages.js`
 - `autodeploy/multi/setup_deploy_server.sh`
 - `autodeploy/multi/test_setup_and_copy_multi-repo.sh`
-- `autodeploy/multi/Dockerfile_Mongo`
 - `.env.example`
 - `src/types/payload-next-css.d.ts`
 - `.gitignore`
 - `.gitattributes`
-- `docs/deployment/SECRETS_PROD.md`
 - `.npmrc`
 - `src/payload/blocks/index.ts`
 - `src/payload/collections/index.ts`
@@ -214,11 +223,11 @@ _(keine)_
 
 | Feld | Wert |
 |---|---|
-| AppCreator Commit | `37d6ed3` |
+| AppCreator Commit | `2b1fd7c` |
 | W1 Rule Snapshot | `unknown` |
 | Basis Docs Source | `local generation snapshot` |
 | Basis Docs Mode | `embedded-template-fallback` |
-| Snapshot Datum | `2026-10-01 08:57:15 UTC` |
+| Snapshot Datum | `2026-10-01 10:07:24 UTC` |
 | Aktive Module | `flipbook` |
 | Validator | `ok` |
 | Snippet Warnungen | `0` |
@@ -300,7 +309,6 @@ _(keine)_
 - `docs/archive/README.md`
 - `docs/audit/README.md`
 - `docs/contracts/flipbook-app-integration-contract.md`
-- `docs/deployment/SECRETS_PROD.md`
 
 ---
 
@@ -310,8 +318,6 @@ _(keine)_
 - `npm install`
 - `npm run generate:importmap`
 - `npm run generate:types`
-- `npx tsc --noEmit`
-- `npm run build`
 
 ---
 

@@ -136,8 +136,7 @@
   background: var(--w1-widget-primary);
 }
 
-.round:focus-visible,
-.pdfLink:focus-visible {
+.round:focus-visible {
   outline: 3px solid var(--w1-widget-focus);
   outline-offset: 2px;
 }
@@ -153,36 +152,36 @@
 }
 
 
-/* PDF: a quiet text link in the primary colour, set apart from the page
-   group; 43px tall so it stays an easy touch target. */
-.pdfLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* Thumbnail strip toggle: a quiet round icon button in the palette primary,
+   like the top bar icons; while the strip is open it gets the soft secondary
+   background and a secondary icon. */
+.stripToggle {
+  --w1-button-neutral-ghost-bg: transparent;
+  --w1-button-neutral-ghost-color: var(--w1-flipbook-control-text, #1c1b1a);
+  --w1-button-neutral-ghost-hover-bg: transparent;
+  --w1-button-neutral-ghost-hover-color: var(--w1-flipbook-control-text, #1c1b1a);
+  --w1-button-neutral-ghost-active-bg: var(--w1-flipbook-control-hover, #e6e4df);
+  --w1-button-neutral-ghost-active-color: var(--w1-flipbook-accent, #1c1b1a);
+  --w1-button-focus-ring: 3px solid var(--w1-flipbook-focus-ring, #1a56db);
+  --w1-icon-size-m: 24px;
+}
+
+.row .stripToggle.stripToggle {
+  flex: 0 0 43px;
+  width: 43px;
+  min-width: 43px;
+  height: 43px;
   min-height: 43px;
-  margin-inline-start: 12px;
-  padding: 0 14px;
+  margin-inline-start: 10px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  color: var(--w1-widget-primary);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  transition: color 140ms ease;
 }
 
-.pdfLink :is(svg, .w1-widget-icon) {
-  width: 16px;
-  height: 16px;
-  transition: transform 140ms ease;
-}
-
-.pdfLink:hover {
-  color: var(--flipbook-app-secondary, var(--w1-widget-primary-strong));
-}
-
-.pdfLink:hover :is(svg, .w1-widget-icon) {
-  transform: translateX(2px);
+/* W1Button's hover rule outranks its pressed rule. */
+.row .stripToggle.stripToggle[aria-pressed='true']:hover {
+  background: var(--w1-flipbook-control-hover, #e6e4df);
+  color: var(--w1-flipbook-accent, #1c1b1a);
 }
 
 /* Ticketing `.selectPopover`; the bar sits low in the reader, so the list
@@ -205,6 +204,80 @@
   transform-origin: bottom left;
   animation: selectPopoverIn 165ms cubic-bezier(0.16, 0.84, 0.24, 1) both;
   will-change: opacity, transform;
+}
+
+/* ---- Vertical variant: column beside the pages (side arrangement) ------ */
+
+/* Fills the end column, sits on the stage colour and keeps clear of the
+   screen edge (safe areas), like the rail it stands in for. */
+.areaVertical.areaVertical {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 100%;
+  margin: 0;
+  padding: env(safe-area-inset-top, 0px) calc(8px + env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px)
+    2px;
+  background: var(--w1-flipbook-stage, #dcdad5);
+}
+
+.panelVertical.panelVertical {
+  border-radius: 28px;
+}
+
+.rowVertical {
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+/* Page field: number on top, chevron below it. */
+.pagePillVertical.pagePillVertical {
+  min-height: 0;
+  padding: 0;
+  border-radius: 22px;
+  --w1-field-size-m-font-size: 13px;
+  --w1-field-size-m-min-height: 0px;
+  --w1-field-padding-m-block: 8px;
+  --w1-field-padding-m-inline: 5px;
+  --w1-field-control-gap: 3px;
+  --w1-field-select-popover-min-width: 5.5rem;
+  --w1-field-select-popover-offset: 10px;
+  /* The list is centred on the field, which sits at mid height. */
+  --w1-field-select-popover-max-height: calc(100dvh - 56px);
+}
+
+.pageFieldVertical {
+  min-width: 43px;
+  font-variant-numeric: tabular-nums;
+}
+
+.triggerVertical.triggerVertical {
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+/* The list opens towards the pages, centred on the field. */
+.selectPopoverSide.selectPopoverSide.selectPopoverSide {
+  top: 50%;
+  right: calc(100% + 10px);
+  bottom: auto;
+  left: auto;
+  transform: translateY(-50%);
+  transform-origin: center right;
+  animation-name: selectPopoverSideIn;
+}
+
+@keyframes selectPopoverSideIn {
+  from {
+    opacity: 0;
+    transform: translate(3px, -50%) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, -50%) scale(1);
+  }
 }
 
 @keyframes selectPopoverIn {

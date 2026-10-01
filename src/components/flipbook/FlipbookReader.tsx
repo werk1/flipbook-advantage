@@ -3,15 +3,18 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { createFlipbookLabels } from '@/lib/blocks/flipbook/labels'
 import type { FlipbookMenuItem } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
+import type { ClientLogo } from '@/lib/theme/clientLogoVariants'
 import { useBoundStore } from '@/stores/boundStore'
 import { W1FlipbookBlock, type W1FlipbookInput, type W1FlipbookToolbarControls } from '@werk1/w1-system-flipbook'
+import { devCurlTuning, IS_DEV } from './dev/devCurlTuning'
 import { FlipbookHeader } from './FlipbookHeader'
-import { renderFlipbookNavigationWidget } from './FlipbookNavigationWidget'
+import { renderFlipbookNavigationColumn, renderFlipbookNavigationWidget } from './FlipbookNavigationWidget'
 import styles from './FlipbookReader.module.css'
 import { FlipbookSideChrome } from './FlipbookSideChrome'
 import { renderFlipbookThumbnailRail } from './FlipbookThumbnailRail'
 import { FlipbookToolbar, renderFlipbookToolbarBar } from './FlipbookToolbar'
 import { readerDeviceClassNames, resolveReaderLayout } from './readerDevice'
+import { W1SystemMark } from './W1SystemMark'
 
 type FlipbookReaderProps = {
   input: W1FlipbookInput
@@ -23,18 +26,22 @@ type FlipbookReaderProps = {
   items?: FlipbookMenuItem[]
   activeSlug?: string
   siteTitle?: string
+  /** Client marks from Site Settings: logo for the header, pictogram for the phone-landscape bar. */
+  clientLogo?: ClientLogo
 }
 
 const subscribeNever = () => () => {}
+
+// Fixed at the end of the status bar.
+const W1_SYSTEM_MARK = <W1SystemMark />
 
 /** False on the server and during hydration, true afterwards. */
 function useHydrated() {
   return useSyncExternalStore(subscribeNever, () => true, () => false)
 }
 
-export function FlipbookReader({ input, locale, showHeader = false, items = [], activeSlug, siteTitle }: FlipbookReaderProps) {
+export function FlipbookReader({ input, locale, showHeader = false, items = [], activeSlug, siteTitle, clientLogo }: FlipbookReaderProps) {
   const deviceInfo = useBoundStore((state) => state.device)
-  const labels = useMemo(() => createFlipbookLabels(locale), [locale])
   const hydrated = useHydrated()
 
   // The structure is chosen once, here. Server render and hydration always
@@ -44,6 +51,9 @@ export function FlipbookReader({ input, locale, showHeader = false, items = [], 
   const device = hydrated ? deviceInfo : undefined
   const layout = resolveReaderLayout(device)
   const deviceClasses = readerDeviceClassNames(device, layout)
+  // Phone portrait: compact counter ("58–59 | 78") in the status bar.
+  const compactCounter = layout === 'phonePortrait'
+  const labels = useMemo(() => createFlipbookLabels(locale, { compactCounter }), [locale, compactCounter])
 
   // The reader owns the current page, so a layout switch keeps the position.
   const [page, setPage] = useState(input.config?.startPage ?? 0)
@@ -71,19 +81,20 @@ export function FlipbookReader({ input, locale, showHeader = false, items = [], 
         activeSlug={activeSlug}
         locale={locale}
         title={siteTitle ?? ''}
-        tools={<FlipbookToolbar controls={controls} />}
+        logo={clientLogo}
+        tools={<FlipbookToolbar controls={controls} showThumbnails={false} showPdf />}
       />
     ),
-    [items, activeSlug, locale, siteTitle],
+    [items, activeSlug, locale, siteTitle, clientLogo],
   )
 
   // Phone landscape: one slim bar (pictogram, counter, icons) beside the
   // pages so the double spread keeps its width, vertical rail at the end.
   const renderSideChrome = useCallback(
     (controls: W1FlipbookToolbarControls) => (
-      <FlipbookSideChrome controls={controls} title={siteTitle} />
+      <FlipbookSideChrome controls={controls} title={siteTitle} logo={clientLogo} />
     ),
-    [siteTitle],
+    [siteTitle, clientLogo],
   )
   const side = layout === 'phoneLandscape'
   const renderToolbar = side ? renderSideChrome : showHeader ? renderHeaderToolbar : renderFlipbookToolbarBar
@@ -103,7 +114,9 @@ export function FlipbookReader({ input, locale, showHeader = false, items = [], 
           deviceInfo={deviceInfo}
           renderThumbnails={renderFlipbookThumbnailRail}
           renderToolbar={renderToolbar}
-          renderNavigation={renderFlipbookNavigationWidget}
+          renderNavigation={side ? renderFlipbookNavigationColumn : renderFlipbookNavigationWidget}
+          status={W1_SYSTEM_MARK}
+          curlTuning={IS_DEV ? devCurlTuning : undefined}
           chromeLayout={side ? 'side' : 'stacked'}
           fill
         />

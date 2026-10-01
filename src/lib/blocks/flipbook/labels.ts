@@ -43,6 +43,10 @@ const LABELS: Record<'de' | 'en', W1FlipbookLabels> = {
   },
 }
 
-export function createFlipbookLabels(locale: string): W1FlipbookLabels {
-  return locale === 'de' ? LABELS.de : LABELS.en
+/** Compact counter for narrow status bars (phone portrait): "58–59 | 78". */
+const compactCounter: W1FlipbookLabels['counter'] = (range, count) => `${range} | ${count}`
+
+export function createFlipbookLabels(locale: string, options: { compactCounter?: boolean } = {}): W1FlipbookLabels {
+  const labels = locale === 'de' ? LABELS.de : LABELS.en
+  return options.compactCounter ? { ...labels, counter: compactCounter } : labels
 }

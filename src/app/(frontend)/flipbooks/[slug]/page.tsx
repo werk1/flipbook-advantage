@@ -2,6 +2,7 @@ import ClientLayout from '@/components/client-layout/ClientLayout'
 import { FlipbookReader } from '@/components/flipbook/FlipbookReader'
 import { resolveFlipbookLocale } from '@/lib/blocks/flipbook/locale'
 import { coverUrlOf, loadPublishedFlipbook, mapFlipbookToInput } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
+import { getClientLogo } from '@/lib/theme/clientLogo'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -50,6 +51,7 @@ export default async function FlipbookReaderPage({ params, searchParams }: Flipb
   const doc = await loadPublishedFlipbook(payload, slug, locale)
   const input = mapFlipbookToInput(doc)
   if (!input) notFound()
+  const clientLogo = await getClientLogo()
 
   const requested = Number(query.page)
   const valid = Number.isInteger(requested) && requested >= 1 && requested <= input.pages.length
@@ -58,10 +60,13 @@ export default async function FlipbookReaderPage({ params, searchParams }: Flipb
   return (
     <ClientLayout renderBeforeDeviceReady>
       {/* Canonical deep link and embed link (Payload Admin, Flipbooks
-          collection): no header, no menu — only the flipbook. */}
+          collection): no header, no menu — only the flipbook. Title
+          and client marks only feed the phone-landscape side bar. */}
       <FlipbookReader
         input={{ ...input, config: { ...input.config, startPage } }}
         locale={locale}
+        siteTitle={input.title}
+        clientLogo={clientLogo}
       />
     </ClientLayout>
   )
