@@ -603,9 +603,11 @@ const WORKSPACE_DIR = resolve(__dirname, '../..')
 const BUNDLE_DIR = join(WORKSPACE_DIR, '_bundles')
 const REMOTE_BUNDLE_DIR = `${BUILD_SSH_DIR}/bundles`
 
-// Altes lokales Bundle-Verzeichnis leeren
+// Alte Bundles entfernen; andere Einträge (z. B. Sicherungsordner) bleiben
 if (existsSync(BUNDLE_DIR)) {
-  readdirSync(BUNDLE_DIR).forEach(f => unlinkSync(join(BUNDLE_DIR, f)))
+  readdirSync(BUNDLE_DIR, { withFileTypes: true })
+    .filter(entry => entry.isFile() && entry.name.endsWith('.bundle'))
+    .forEach(entry => unlinkSync(join(BUNDLE_DIR, entry.name)))
 }
 mkdirSync(BUNDLE_DIR, { recursive: true })
 

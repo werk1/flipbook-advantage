@@ -24,6 +24,8 @@ COPY ../w1-system-ui/package.json ../w1-system-ui/package-lock.json* /w1-system-
 RUN cd /w1-system-ui && npm ci --ignore-scripts
 COPY ../w1-system-widgets/package.json ../w1-system-widgets/package-lock.json* /w1-system-widgets/
 RUN cd /w1-system-widgets && npm ci --ignore-scripts
+COPY ../w1-system-calendar/package.json ../w1-system-calendar/package-lock.json* /w1-system-calendar/
+RUN cd /w1-system-calendar && npm ci --ignore-scripts
 
 COPY ../w1-system-font-manager /w1-system-font-manager
 RUN cd /w1-system-font-manager && npm install --no-audit --no-fund --loglevel=error && npm run build
@@ -43,6 +45,7 @@ COPY --from=deps /app/../w1-system-font-manager /w1-system-font-manager/
 COPY --from=deps /app/../w1-system-flipbook /w1-system-flipbook/
 COPY --from=deps /app/../w1-system-ui /w1-system-ui/
 COPY --from=deps /app/../w1-system-widgets /w1-system-widgets/
+COPY --from=deps /app/../w1-system-calendar /w1-system-calendar/
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 

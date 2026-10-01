@@ -1,6 +1,6 @@
 # W1 System – Generierungs-Report
 
-**Generiert am:** 2026-10-01 07:40:46 UTC
+**Generiert am:** 2026-10-01 08:57:15 UTC
 
 ---
 
@@ -46,7 +46,7 @@ _(keine)_
 
 | Modus | Pakete |
 |---|---|
-| **Workspace** (file:../, lokal vorhanden) | w1-system-device-info, w1-system-gsap-gesture, w1-system-gsap-scroll, w1-system-timeline-engine, w1-system-imageblock, w1-system-media-manager, w1-system-carouselblock, w1-system-font-manager, w1-system-flipbook, w1-system-ui, w1-system-widgets |
+| **Workspace** (file:../, lokal vorhanden) | w1-system-device-info, w1-system-gsap-gesture, w1-system-gsap-scroll, w1-system-timeline-engine, w1-system-imageblock, w1-system-media-manager, w1-system-carouselblock, w1-system-font-manager, w1-system-flipbook, w1-system-ui, w1-system-widgets, w1-system-calendar |
 
 ### 3.1 @werk1-Pakete – Geklont (dependencies)
 
@@ -61,6 +61,7 @@ _(keine)_
 - `@werk1/w1-system-flipbook` → `file:../w1-system-flipbook`
 - `@werk1/w1-system-ui` → `file:../w1-system-ui`
 - `@werk1/w1-system-widgets` → `file:../w1-system-widgets`
+- `@werk1/w1-system-calendar` → `file:../w1-system-calendar`
 
 ---
 
@@ -93,9 +94,9 @@ _(keine)_
 - `flipbook-advantage/src/components/flipbook/FlipbookReader.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookHeader.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookHeader.module.css`
-- `flipbook-advantage/src/components/flipbook/FlipbookHome.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookHome.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookToolbar.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookToolbar.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.tsx`
@@ -213,11 +214,11 @@ _(keine)_
 
 | Feld | Wert |
 |---|---|
-| AppCreator Commit | `acd1c23` |
+| AppCreator Commit | `37d6ed3` |
 | W1 Rule Snapshot | `unknown` |
 | Basis Docs Source | `local generation snapshot` |
 | Basis Docs Mode | `embedded-template-fallback` |
-| Snapshot Datum | `2026-10-01 07:40:46 UTC` |
+| Snapshot Datum | `2026-10-01 08:57:15 UTC` |
 | Aktive Module | `flipbook` |
 | Validator | `ok` |
 | Snippet Warnungen | `0` |

@@ -98,6 +98,7 @@ const nextConfig = {
     ],
   },
   transpilePackages: [
+    '@werk1/w1-system-calendar',
     '@werk1/w1-system-carouselblock',
     '@werk1/w1-system-device-info',
     '@werk1/w1-system-flipbook',

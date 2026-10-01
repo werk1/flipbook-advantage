@@ -28,6 +28,7 @@
     "@payloadcms/richtext-lexical": "3.86.0",
     "@payloadcms/ui": "3.86.0",
     "@react-spring/web": "^10.1.2",
+    "@werk1/w1-system-calendar": "file:../w1-system-calendar",
     "@werk1/w1-system-carouselblock": "file:../w1-system-carouselblock",
     "@werk1/w1-system-device-info": "file:../w1-system-device-info",
     "@werk1/w1-system-flipbook": "file:../w1-system-flipbook",
