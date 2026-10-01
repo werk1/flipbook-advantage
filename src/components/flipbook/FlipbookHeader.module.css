@@ -21,12 +21,20 @@
   min-width: 0;
 }
 
-/* Client logo instead of the name: as tall as the bar's controls allow. */
+/*
+ * Client logo instead of the name. Standard height 28 px, scaled by Site
+ * Settings ("Logo-Größe", --flipbook-logo-scale 0.6 to 1.7). The block
+ * margins take up the difference, so the logo always occupies 28 px in the
+ * layout: a larger logo reaches into the bar's padding, the bar keeps its
+ * height. It grows and shrinks from its left edge.
+ */
 .logo {
+  --logo-height: calc(28px * var(--flipbook-logo-scale, 1));
   display: block;
   width: auto;
-  height: 28px;
-  max-width: min(46vw, 260px);
+  height: var(--logo-height);
+  margin-block: calc((28px - var(--logo-height)) / 2);
+  max-width: min(46vw, 360px);
   object-fit: contain;
   object-position: left center;
 }

@@ -1,5 +1,5 @@
 import { getPayloadClient } from '@/lib/payload/getPayloadClient'
-import type { ClientLogo, ClientLogoImage } from './clientLogoVariants'
+import { logoScaleFactor, type ClientLogo, type ClientLogoImage } from './clientLogoVariants'
 
 type MediaDoc = { url?: string | null; width?: number | null; height?: number | null }
 
@@ -29,6 +29,7 @@ export async function getClientLogo(): Promise<ClientLogo | undefined> {
     const logo: ClientLogo = {
       name: name || undefined,
       pageWord,
+      logoScale: logoScaleFactor(settings.clientLogo?.logoScale),
       positive: toImage(settings.clientLogo?.positive),
       negative: toImage(settings.clientLogo?.negative),
       pictogramPositive: toImage(settings.clientLogo?.pictogramPositive),

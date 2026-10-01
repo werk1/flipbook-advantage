@@ -1,6 +1,6 @@
 # W1 System – Generierungs-Report
 
-**Generiert am:** 2026-10-01 10:07:24 UTC
+**Generiert am:** 2026-10-01 13:59:26 UTC
 
 ---
 
@@ -223,11 +223,11 @@ _(keine)_
 
 | Feld | Wert |
 |---|---|
-| AppCreator Commit | `2b1fd7c` |
+| AppCreator Commit | `139e4b7` |
 | W1 Rule Snapshot | `unknown` |
 | Basis Docs Source | `local generation snapshot` |
 | Basis Docs Mode | `embedded-template-fallback` |
-| Snapshot Datum | `2026-10-01 10:07:24 UTC` |
+| Snapshot Datum | `2026-10-01 13:59:26 UTC` |
 | Aktive Module | `flipbook` |
 | Validator | `ok` |
 | Snippet Warnungen | `0` |
@@ -318,6 +318,8 @@ _(keine)_
 - `npm install`
 - `npm run generate:importmap`
 - `npm run generate:types`
+- `npx tsc --noEmit`
+- `npm run build`
 
 ---
 

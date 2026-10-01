@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { FlipbookMenuItem } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
 import { flipbookLocaleQuery } from '@/lib/blocks/flipbook/locale'
 import { pickLogoVariants, type ClientLogo } from '@/lib/theme/clientLogoVariants'
@@ -55,7 +55,15 @@ export function FlipbookHeader({
         {mainLogo ? (
           <picture>
             {darkLogo && <source srcSet={darkLogo.url} media="(prefers-color-scheme: dark)" />}
-            <img className={styles.logo} src={mainLogo.url} width={mainLogo.width} height={mainLogo.height} alt={title} />
+            <img
+              className={styles.logo}
+              src={mainLogo.url}
+              width={mainLogo.width}
+              height={mainLogo.height}
+              alt={title}
+              // Size from Site Settings ("Logo-Größe"), already inside its limits.
+              style={{ '--flipbook-logo-scale': logo?.logoScale ?? 1 } as CSSProperties}
+            />
           </picture>
         ) : (
           title

@@ -19,10 +19,24 @@ export interface ClientLogo {
    * language default ("Seite" / "Page"), an empty string shows numbers only.
    */
   pageWord?: string
+  /** Size of the header logo as a factor of its standard height (see LOGO_SCALE). */
+  logoScale?: number
   positive?: ClientLogoImage
   negative?: ClientLogoImage
   pictogramPositive?: ClientLogoImage
   pictogramNegative?: ClientLogoImage
+}
+
+/**
+ * Limits of the header logo size in percent of its standard height (28 px).
+ * The upper limit keeps the logo inside the 56 px bar, which never grows.
+ */
+export const LOGO_SCALE = { min: 60, max: 170, default: 100 } as const
+
+/** Logo size from Site Settings (percent) as a factor inside the limits. */
+export function logoScaleFactor(percent: unknown): number {
+  const value = typeof percent === 'number' && Number.isFinite(percent) ? percent : LOGO_SCALE.default
+  return Math.min(Math.max(value, LOGO_SCALE.min), LOGO_SCALE.max) / 100
 }
 
 /**
