@@ -186,6 +186,14 @@ export function withSectionDefaults(overrides: FlipbookSectionOverrides): Flipbo
   return overrides.showThumbnails === undefined ? { ...overrides, showThumbnails: false } : overrides
 }
 
+/**
+ * Issue label of the flipbook for the reader's status bar ("Nr. 7/27",
+ * "Ausgabe 5"), exactly as entered; undefined when the field is empty.
+ */
+export function issueOf(doc: unknown): string | undefined {
+  return str(asRec(doc)?.issue)?.trim() || undefined
+}
+
 /** URL of the resolved cover (`coverImage`, populated) for listing and OG image. */
 export function coverUrlOf(doc: unknown): string | null {
   const cover = asRec(asRec(doc)?.coverImage)

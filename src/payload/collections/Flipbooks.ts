@@ -158,6 +158,18 @@ export const Flipbooks: CollectionConfig = {
       localized: true,
     },
     {
+      name: "issue",
+      label: { de: "Ausgabe", en: "Issue" },
+      type: "text",
+      localized: true,
+      admin: {
+        description: {
+          de: "Steht im Reader unten in der Statuszeile zwischen Kundenname und Seitenzahl, zum Beispiel „Nr. 7/27“ oder „Ausgabe 5“. Ohne Eintrag entfällt sie.",
+          en: "Shown in the reader's status bar at the bottom between client name and page count, for example \"No. 7/27\" or \"Issue 5\". Omitted when empty.",
+        },
+      },
+    },
+    {
       name: "slug",
       label: { de: "Slug", en: "Slug" },
       type: "text",

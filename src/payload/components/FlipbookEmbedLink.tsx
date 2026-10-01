@@ -8,9 +8,9 @@ import { defaultLanguage, languageLabels, supportedLanguages } from '@/config/la
 /**
  * Copyable public reader links ("/flipbooks/[slug]") for embedding a
  * published flipbook on external websites, one per supported language;
- * non-default languages carry ?locale=<code>. That route never shows the
- * Flipbook-Host header/menu (FlipbookReader.tsx), so every link is
- * menu-free on its own.
+ * non-default languages carry ?locale=<code>. That route shows the bar with
+ * the name or client logo but never the cross-flipbook menu
+ * (FlipbookReader.tsx), so every link is menu-free on its own.
  */
 export function FlipbookEmbedLink() {
   const { id } = useDocumentInfo()

@@ -33,10 +33,36 @@
   min-height: 0;
   /* Status bar at about 2/3 of the top bar: header 56px, slim bar 48px. */
   --w1-flipbook-status-height: 32px;
+  /* Page counter in a light weight next to the bold name and issue. */
+  --w1-flipbook-status-font-weight: 300;
 }
 
 .reader[data-reader-chrome='header'] .viewer {
   --w1-flipbook-status-height: 36px;
+}
+
+/* Start of the status bar: client name (bold), issue (bold, a little
+   smaller), then the page counter (light, set on the viewer below). Name and
+   issue are cut with an ellipsis when the bar gets narrow, the name first. */
+.statusName,
+.statusIssue {
+  min-width: 0;
+  /* With the bar's own 8px gap: clear spacing instead of separators. */
+  margin-inline-end: 6px;
+  overflow: hidden;
+  font-weight: 700;
+  color: var(--w1-flipbook-text, #1c1b1a);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusName {
+  flex: 0 100 auto;
+}
+
+.statusIssue {
+  flex: 0 10 auto;
+  font-size: 0.9em;
 }
 
 /*

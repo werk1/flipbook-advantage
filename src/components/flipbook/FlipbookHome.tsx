@@ -2,7 +2,7 @@ import ClientLayout from '@/components/client-layout/ClientLayout'
 import { FlipbookHeader } from '@/components/flipbook/FlipbookHeader'
 import { FlipbookReader } from '@/components/flipbook/FlipbookReader'
 import { resolveFlipbookLocale } from '@/lib/blocks/flipbook/locale'
-import { listPublishedFlipbooks, loadPublishedFlipbook, mapFlipbookToInput } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
+import { issueOf, listPublishedFlipbooks, loadPublishedFlipbook, mapFlipbookToInput } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
 import { getPayloadClient } from '@/lib/payload/getPayloadClient'
 import { getClientLogo } from '@/lib/theme/clientLogo'
 
@@ -40,7 +40,7 @@ export async function FlipbookHome({
     return (
       <ClientLayout renderBeforeDeviceReady>
         <main style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
-          <FlipbookHeader items={items} locale={locale} title={copy.title} logo={clientLogo} />
+          <FlipbookHeader items={items} locale={locale} title={clientLogo?.name ?? copy.title} logo={clientLogo} />
           <div style={{ flex: 1, display: 'grid', placeItems: 'center' }}>{copy.empty}</div>
         </main>
       </ClientLayout>
@@ -60,6 +60,7 @@ export async function FlipbookHome({
         items={items}
         activeSlug={slug}
         siteTitle={input.title ?? copy.title}
+        issue={issueOf(doc)}
         clientLogo={clientLogo}
       />
     </ClientLayout>

@@ -37,15 +37,52 @@ export const SiteSettings: GlobalConfig = {
     },
     {
       name: "clientLogo",
-      label: { de: "Kundenlogo", en: "Client logo" },
+      label: { de: "Kunde: Name, Logo, Piktogramm", en: "Client: name, logo, pictogram" },
       type: "group",
       admin: {
         description: {
-          de: "Logo: ersetzt den Namen links oben im Reader. Piktogramm: steht am Handy im Querformat oben in der schmalen Leiste. PNG mit transparentem Hintergrund. Ist nur eine Variante geladen, gilt sie für Hell und Dunkel.",
-          en: "Logo: replaces the name at the top left of the reader. Pictogram: sits at the top of the slim bar on phones in landscape. PNG with a transparent background. If only one variant is set it is used for light and dark.",
+          de: "Name: steht links oben im Reader, solange kein Logo geladen ist, und immer als Text unten in der Statuszeile, vor Ausgabe und Seitenzahl. Logo: ersetzt den Namen links oben. Piktogramm: steht am Handy im Querformat oben in der schmalen Leiste. PNG mit transparentem Hintergrund. Ist nur eine Variante geladen, gilt sie für Hell und Dunkel.",
+          en: "Name: shown at the top left of the reader while no logo is set, and always as text in the status bar at the bottom, before issue and page count. Logo: replaces the name at the top left. Pictogram: sits at the top of the slim bar on phones in landscape. PNG with a transparent background. If only one variant is set it is used for light and dark.",
         },
       },
       fields: [
+        {
+          name: "name",
+          label: { de: "Kundenname", en: "Client name" },
+          type: "text",
+          admin: {
+            description: {
+              de: "Zum Beispiel ADVANTAGE. Ohne Eintrag steht oben der Titel des Flipbooks.",
+              en: "For example ADVANTAGE. Without an entry the flipbook title is shown on top.",
+            },
+          },
+        },
+        {
+          name: "pageWordMode",
+          label: { de: "Wort vor der Seitenzahl", en: "Word before the page number" },
+          type: "select",
+          defaultValue: "default",
+          options: [
+            { label: { de: "Standard (Seite / Page je Sprache)", en: "Default (Seite / Page by language)" }, value: "default" },
+            { label: { de: "Kein Wort (nur Zahlen)", en: "No word (numbers only)" }, value: "none" },
+            { label: { de: "Eigenes Wort", en: "Custom word" }, value: "custom" },
+          ],
+          admin: {
+            description: {
+              de: "Statuszeile des Readers, zum Beispiel „Seite 10–11 | 78“. Am Handy im Hochformat stehen immer nur die Zahlen.",
+              en: "Status bar of the reader, for example \"Page 10–11 | 78\". Phones in portrait always show the numbers only.",
+            },
+          },
+        },
+        {
+          name: "pageWord",
+          label: { de: "Eigenes Wort", en: "Custom word" },
+          type: "text",
+          admin: {
+            condition: (_, siblingData) => siblingData?.pageWordMode === "custom",
+            description: { de: "Zum Beispiel „S.“ oder „Page“.", en: "For example \"p.\" or \"Page\"." },
+          },
+        },
         {
           name: "positive",
           label: { de: "Logo positiv (für helle Flächen)", en: "Logo positive (for light surfaces)" },
