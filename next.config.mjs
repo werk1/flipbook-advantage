@@ -106,6 +106,8 @@ const nextConfig = {
     '@werk1/w1-system-imageblock',
     '@werk1/w1-system-media-manager',
     '@werk1/w1-system-timeline-engine',
+    '@werk1/w1-system-ui',
+    '@werk1/w1-system-widgets',
   ],
   turbopack: {
     root: path.resolve(process.cwd(), '..'),

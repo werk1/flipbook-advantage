@@ -37,6 +37,8 @@
     "@werk1/w1-system-imageblock": "file:../w1-system-imageblock",
     "@werk1/w1-system-media-manager": "file:../w1-system-media-manager",
     "@werk1/w1-system-timeline-engine": "file:../w1-system-timeline-engine",
+    "@werk1/w1-system-ui": "file:../w1-system-ui",
+    "@werk1/w1-system-widgets": "file:../w1-system-widgets",
     "fflate": "0.8.2",
     "fontkit": "2.0.4",
     "graphql": "^16.13.2",

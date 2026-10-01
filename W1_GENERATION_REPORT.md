@@ -1,6 +1,6 @@
 # W1 System – Generierungs-Report
 
-**Generiert am:** 2026-10-01 05:56:42 UTC
+**Generiert am:** 2026-10-01 07:40:46 UTC
 
 ---
 
@@ -46,7 +46,7 @@ _(keine)_
 
 | Modus | Pakete |
 |---|---|
-| **Workspace** (file:../, lokal vorhanden) | w1-system-device-info, w1-system-gsap-gesture, w1-system-gsap-scroll, w1-system-timeline-engine, w1-system-imageblock, w1-system-media-manager, w1-system-carouselblock, w1-system-font-manager, w1-system-flipbook |
+| **Workspace** (file:../, lokal vorhanden) | w1-system-device-info, w1-system-gsap-gesture, w1-system-gsap-scroll, w1-system-timeline-engine, w1-system-imageblock, w1-system-media-manager, w1-system-carouselblock, w1-system-font-manager, w1-system-flipbook, w1-system-ui, w1-system-widgets |
 
 ### 3.1 @werk1-Pakete – Geklont (dependencies)
 
@@ -59,6 +59,8 @@ _(keine)_
 - `@werk1/w1-system-carouselblock` → `file:../w1-system-carouselblock`
 - `@werk1/w1-system-font-manager` → `file:../w1-system-font-manager`
 - `@werk1/w1-system-flipbook` → `file:../w1-system-flipbook`
+- `@werk1/w1-system-ui` → `file:../w1-system-ui`
+- `@werk1/w1-system-widgets` → `file:../w1-system-widgets`
 
 ---
 
@@ -88,14 +90,24 @@ _(keine)_
 - `flipbook-advantage/src/lib/blocks/flipbook/types.ts`
 - `flipbook-advantage/src/components/page/W1FlipbookSectionRenderer.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookReader.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookReader.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookHeader.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookHeader.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookHome.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookToolbar.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookToolbar.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookNavigationWidget.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookNavigationWidget.module.css`
+- `flipbook-advantage/src/components/flipbook/readerDevice.ts`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/[slug]/page.tsx`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/flipbooks.module.css`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/page.tsx`
+- `flipbook-advantage/src/lib/theme/appPalette.ts`
+- `flipbook-advantage/src/app/(frontend)/theme/palettes.css`
 
 ---
 
@@ -183,6 +195,7 @@ _(keine)_
 - `src/payload/app-fonts/constants.ts`
 - `src/app/(frontend)/[[...slug]]/page.tsx`
 - `src/app/(frontend)/layout.tsx`
+- `src/payload/globals/SiteSettings.ts`
 - `src/stores/boundStore.ts`
 - `src/lib/pages/types.ts`
 - `src/lib/pages/resolvePageSections.ts`
@@ -200,11 +213,11 @@ _(keine)_
 
 | Feld | Wert |
 |---|---|
-| AppCreator Commit | `7da4141` |
+| AppCreator Commit | `acd1c23` |
 | W1 Rule Snapshot | `unknown` |
 | Basis Docs Source | `local generation snapshot` |
 | Basis Docs Mode | `embedded-template-fallback` |
-| Snapshot Datum | `2026-10-01 05:56:42 UTC` |
+| Snapshot Datum | `2026-10-01 07:40:46 UTC` |
 | Aktive Module | `flipbook` |
 | Validator | `ok` |
 | Snippet Warnungen | `0` |

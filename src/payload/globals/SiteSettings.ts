@@ -24,6 +24,24 @@ export const SiteSettings: GlobalConfig = {
       localized: true,
     },
     {
+      name: "colorPalette",
+      label: { de: "Farbschema", en: "Color palette" },
+      type: "select",
+      required: true,
+      defaultValue: "graphite",
+      options: [
+        { label: { de: "Graphit", en: "Graphite" }, value: "graphite" },
+        { label: { de: "Advantage-Blau gedämpft", en: "Advantage blue (muted)" }, value: "advantage" },
+        { label: { de: "Salbei / Stein", en: "Sage / Stone" }, value: "sage" },
+      ],
+      admin: {
+        description: {
+          de: "Farben der Reader-Oberfläche. Hell oder Dunkel folgt automatisch dem System bzw. Browser der Besucher.",
+          en: "Colors of the reader UI. Light or dark follows the visitor's system or browser automatically.",
+        },
+      },
+    },
+    {
       name: "navigation",
       label: { de: "Navigation", en: "Navigation" },
       type: "array",

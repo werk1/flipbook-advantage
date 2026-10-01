@@ -1,11 +1,11 @@
 # Sync Status
 
-Generated at: 2026-10-01T05:56:42.123Z
+Generated at: 2026-10-01T07:40:46.532Z
 
 App: `flipbook-advantage`
 
 Rule snapshot source: `w1-system-app-creator`
-AppCreator commit: `7da4141`
+AppCreator commit: `acd1c23`
 W1 rule snapshot: `unknown`
 Basis docs source: local generation snapshot
 Basis docs mode: `embedded-template-fallback`

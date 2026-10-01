@@ -6,8 +6,15 @@ import type { W1FlipbookPage, W1FlipbookThumbnailItem, W1FlipbookThumbnailStripP
 import { useBoundStore } from '@/stores/boundStore'
 import styles from './FlipbookThumbnailRail.module.css'
 
-/** Rail height in px; tile widths follow each tile's ratio (`fitHeight`). */
+/** Horizontal rail height in px; tile widths follow each tile's ratio (`fitHeight`). */
 const THUMB_HEIGHT_PX = 90
+/**
+ * Vertical rail (side arrangement): tile width in px, the rail width minus
+ * its inline padding (see `.railVertical`); heights follow each tile's ratio
+ * (`fitWidth`) up to the cap.
+ */
+const VERTICAL_THUMB_WIDTH_PX = 128
+const VERTICAL_THUMB_MAX_HEIGHT_PX = 200
 
 const pageThumb = (page: W1FlipbookPage) => page.thumbnailUrl ?? page.imageUrl
 
@@ -29,7 +36,8 @@ function TileContent({ item }: { item: W1FlipbookThumbnailItem }) {
  * tiles compose their two page thumbnails; the flipbook package itself has no
  * carousel dependency (`renderThumbnails` slot).
  */
-export function FlipbookThumbnailRail({ items, activeIndex, onSelect, label }: W1FlipbookThumbnailStripProps) {
+export function FlipbookThumbnailRail({ items, activeIndex, onSelect, label, orientation }: W1FlipbookThumbnailStripProps) {
+  const vertical = orientation === 'vertical'
   const deviceInfo = useBoundStore((state) => state.device)
   // Free strip until device detection is ready, so the first render is deterministic.
   const device = deviceInfo?.isReady && deviceInfo.is_deviceM ? 'mobile' : 'desktop'
@@ -48,7 +56,7 @@ export function FlipbookThumbnailRail({ items, activeIndex, onSelect, label }: W
   )
 
   return (
-    <div className={styles.rail}>
+    <div className={vertical ? `${styles.rail} ${styles.railVertical}` : styles.rail}>
       <W1StripRail
         device={device}
         ariaLabel={label}
@@ -56,15 +64,23 @@ export function FlipbookThumbnailRail({ items, activeIndex, onSelect, label }: W
         items={railItems}
         selectedIndex={activeIndex}
         onSelect={onSelect}
-        thumbHeightPx={THUMB_HEIGHT_PX}
-        thumbFit="fitHeight"
+        {...(vertical
+          ? {
+              orientation: 'vertical' as const,
+              thumbFit: 'fitWidth' as const,
+              thumbWidthPx: VERTICAL_THUMB_WIDTH_PX,
+              thumbHeightPx: VERTICAL_THUMB_MAX_HEIGHT_PX,
+            }
+          : { thumbFit: 'fitHeight' as const, thumbHeightPx: THUMB_HEIGHT_PX })}
         followSelection
-        revealAlign="center"
+        revealAlign="nearest"
         renderItem={(_, { index }) => <TileContent item={items[index]} />}
         gapPx={8}
         sidePaddingPx={12}
         thumbRadiusPx={4}
-        thumbBorderWidth={0}
+        thumbBorderWidth={1}
+        thumbBorderOpacity={1}
+        thumbBorderColor="var(--w1-flipbook-border, #b9b5ad)"
         activeBorderWidth={2}
         activeBorderOpacity={1}
         activeBorderColor="var(--w1-flipbook-thumb-active, #1a56db)"

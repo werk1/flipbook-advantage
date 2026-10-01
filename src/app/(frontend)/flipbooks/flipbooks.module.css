@@ -1,7 +1,9 @@
 .main {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
+  /* Safe areas (viewport-fit=cover) on top of the regular spacing. */
+  padding: calc(24px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px))
+    calc(48px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
 }
 
 .grid {

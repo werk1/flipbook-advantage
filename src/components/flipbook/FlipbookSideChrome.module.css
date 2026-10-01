@@ -1,0 +1,63 @@
+/*
+ * Phone-landscape start column: pictogram on top, compact counter, icon
+ * buttons at the bottom. Width is a device token (--flipbook-side-bar-width,
+ * set in the PL section of FlipbookReader.module.css).
+ */
+.sideChrome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  /* The bar reaches the screen edge; its content stays clear of the notch /
+     Dynamic Island (left), the status bar (top) and the home indicator. */
+  width: calc(var(--flipbook-side-bar-width, 64px) + env(safe-area-inset-left, 0px));
+  height: 100%;
+  padding: max(10px, env(safe-area-inset-top, 0px)) 0 max(10px, env(safe-area-inset-bottom, 0px))
+    env(safe-area-inset-left, 0px);
+  box-sizing: border-box;
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  border-right: 1px solid var(--w1-flipbook-border, #b9b5ad);
+}
+
+/* Reserved square for the client pictogram. */
+.pictogram {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: var(--flipbook-pictogram-size, 44px);
+  height: var(--flipbook-pictogram-size, 44px);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--w1-flipbook-text, #1c1b1a);
+}
+
+.pictogram > :is(img, svg) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--w1-flipbook-muted, #55524d);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.status {
+  max-width: 100%;
+  font-size: 0.7rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Icons sit at the bottom of the bar. */
+.tools {
+  display: flex;
+  margin-top: auto;
+}

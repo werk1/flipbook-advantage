@@ -20,6 +20,10 @@ COPY ../w1-system-font-manager/package.json ../w1-system-font-manager/package-lo
 RUN cd /w1-system-font-manager && npm ci --ignore-scripts
 COPY ../w1-system-flipbook/package.json ../w1-system-flipbook/package-lock.json* /w1-system-flipbook/
 RUN cd /w1-system-flipbook && npm ci --ignore-scripts
+COPY ../w1-system-ui/package.json ../w1-system-ui/package-lock.json* /w1-system-ui/
+RUN cd /w1-system-ui && npm ci --ignore-scripts
+COPY ../w1-system-widgets/package.json ../w1-system-widgets/package-lock.json* /w1-system-widgets/
+RUN cd /w1-system-widgets && npm ci --ignore-scripts
 
 COPY ../w1-system-font-manager /w1-system-font-manager
 RUN cd /w1-system-font-manager && npm install --no-audit --no-fund --loglevel=error && npm run build
@@ -37,6 +41,8 @@ COPY --from=deps /app/../w1-system-media-manager /w1-system-media-manager/
 COPY --from=deps /app/../w1-system-carouselblock /w1-system-carouselblock/
 COPY --from=deps /app/../w1-system-font-manager /w1-system-font-manager/
 COPY --from=deps /app/../w1-system-flipbook /w1-system-flipbook/
+COPY --from=deps /app/../w1-system-ui /w1-system-ui/
+COPY --from=deps /app/../w1-system-widgets /w1-system-widgets/
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 

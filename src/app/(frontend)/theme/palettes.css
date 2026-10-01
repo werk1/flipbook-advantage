@@ -1,0 +1,175 @@
+/*
+ * App color palettes. The palette is chosen in the admin (Site Settings →
+ * Farbschema) and set as `data-app-palette` on <html>. Light or dark follows
+ * the visitor's system/browser (prefers-color-scheme); there is no user
+ * switch.
+ *
+ * Each palette defines the base tokens (--flipbook-app-*). The mapping block
+ * below feeds them into the viewer (--w1-flipbook-*), the navigation widget
+ * and the toolbar, so components never carry fixed colors.
+ */
+
+:root {
+  color-scheme: light dark;
+}
+
+/* ---- Graphit ---------------------------------------------------------- */
+
+[data-app-palette='graphite'] {
+  /* Slate graphite: calm, with a hint of the secondary blue (not near-black). */
+  --flipbook-app-primary: #3e4c59;
+  --flipbook-app-primary-strong: #2f3b46;
+  --flipbook-app-primary-text: #f7f5f0;
+  --flipbook-app-secondary: #3f6c8f;
+  --flipbook-app-bg: #ecebe8;
+  --flipbook-app-toolbar: #ffffff;
+  --flipbook-app-stage: #dcdad5;
+  --flipbook-app-paper: #fbfaf7;
+  --flipbook-app-border: #cfccc5;
+  --flipbook-app-text: #1f1e1c;
+  --flipbook-app-muted: #6b675f;
+  /* Widget gradient "neutral-warm". */
+  --flipbook-app-panel-gradient: linear-gradient(22deg, #eeece7 0%, #e3dfd7 55%, #d6d0c5 100%);
+  --flipbook-app-panel-border: rgba(52, 50, 46, 0.1);
+  --flipbook-app-panel-shadow: rgba(40, 36, 30, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-app-palette='graphite'] {
+    --flipbook-app-primary: #d6dee6;
+    --flipbook-app-primary-strong: #ffffff;
+    --flipbook-app-primary-text: #1b242d;
+    --flipbook-app-secondary: #86aac7;
+    --flipbook-app-bg: #161615;
+    --flipbook-app-toolbar: #1e1d1b;
+    --flipbook-app-stage: #121211;
+    --flipbook-app-paper: #d8d4cb;
+    --flipbook-app-border: #34322e;
+    --flipbook-app-text: #ecebe8;
+    --flipbook-app-muted: #a39f97;
+    --flipbook-app-panel-gradient: linear-gradient(22deg, #2c2a26 0%, #25231f 55%, #1f1d1a 100%);
+    --flipbook-app-panel-border: rgba(255, 255, 255, 0.08);
+    --flipbook-app-panel-shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ---- Advantage-Blau gedämpft ------------------------------------------ */
+
+[data-app-palette='advantage'] {
+  --flipbook-app-primary: #2f5b7c;
+  --flipbook-app-primary-strong: #244a66;
+  --flipbook-app-primary-text: #ffffff;
+  --flipbook-app-secondary: #c9a33a;
+  --flipbook-app-bg: #eceeef;
+  --flipbook-app-toolbar: #ffffff;
+  --flipbook-app-stage: #dde1e4;
+  --flipbook-app-paper: #fbfbfa;
+  --flipbook-app-border: #c9d0d5;
+  --flipbook-app-text: #1b2228;
+  --flipbook-app-muted: #5f6b75;
+  /* Widget gradient "neutral-cool". */
+  --flipbook-app-panel-gradient: linear-gradient(204deg, #eceeef 0%, #e0e4e6 56%, #d3dade 100%);
+  --flipbook-app-panel-border: rgba(27, 34, 40, 0.1);
+  --flipbook-app-panel-shadow: rgba(27, 40, 55, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-app-palette='advantage'] {
+    --flipbook-app-primary: #8cb4d2;
+    --flipbook-app-primary-strong: #a6c6de;
+    --flipbook-app-primary-text: #10202c;
+    --flipbook-app-secondary: #d8b95a;
+    --flipbook-app-bg: #141719;
+    --flipbook-app-toolbar: #1b1f22;
+    --flipbook-app-stage: #101315;
+    --flipbook-app-paper: #d6d8d8;
+    --flipbook-app-border: #2e3439;
+    --flipbook-app-text: #e9eef2;
+    --flipbook-app-muted: #9aa6b0;
+    --flipbook-app-panel-gradient: linear-gradient(204deg, #252b30 0%, #20252a 56%, #1b2024 100%);
+    --flipbook-app-panel-border: rgba(255, 255, 255, 0.08);
+    --flipbook-app-panel-shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ---- Salbei / Stein --------------------------------------------------- */
+
+[data-app-palette='sage'] {
+  --flipbook-app-primary: #46574f;
+  --flipbook-app-primary-strong: #36453e;
+  --flipbook-app-primary-text: #f6f7f4;
+  --flipbook-app-secondary: #9a8766;
+  --flipbook-app-bg: #eceeeb;
+  --flipbook-app-toolbar: #ffffff;
+  --flipbook-app-stage: #dde0db;
+  --flipbook-app-paper: #fbfbf8;
+  --flipbook-app-border: #ccd1ca;
+  --flipbook-app-text: #1d221f;
+  --flipbook-app-muted: #646c66;
+  /* Widget gradient "teal". */
+  --flipbook-app-panel-gradient: linear-gradient(155deg, #d0d9da 0%, #bac9ca 52%, #99afb1 100%);
+  --flipbook-app-panel-border: rgba(29, 34, 31, 0.1);
+  --flipbook-app-panel-shadow: rgba(30, 45, 40, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-app-palette='sage'] {
+    --flipbook-app-primary: #b9cbbf;
+    --flipbook-app-primary-strong: #cfddd3;
+    --flipbook-app-primary-text: #16201a;
+    --flipbook-app-secondary: #c6b28c;
+    --flipbook-app-bg: #141715;
+    --flipbook-app-toolbar: #1b1f1c;
+    --flipbook-app-stage: #101311;
+    --flipbook-app-paper: #d6d8d2;
+    --flipbook-app-border: #2f3531;
+    --flipbook-app-text: #e8ece8;
+    --flipbook-app-muted: #9ea79f;
+    --flipbook-app-panel-gradient: linear-gradient(155deg, #26302d 0%, #212a27 52%, #1b2320 100%);
+    --flipbook-app-panel-border: rgba(255, 255, 255, 0.08);
+    --flipbook-app-panel-shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ---- Mode tokens shared by all palettes ------------------------------- */
+
+[data-app-palette] {
+  --flipbook-app-field-bg: rgba(255, 255, 255, 0.72);
+  --flipbook-app-field-border: color-mix(in srgb, var(--flipbook-app-text) 16%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-app-palette] {
+    --flipbook-app-field-bg: rgba(255, 255, 255, 0.08);
+    --flipbook-app-field-border: rgba(255, 255, 255, 0.16);
+  }
+}
+
+/* ---- Mapping onto the viewer and the page ------------------------------ */
+
+[data-app-palette] {
+  --flipbook-app-secondary-soft: color-mix(in srgb, var(--flipbook-app-secondary) 16%, transparent);
+  --flipbook-app-focus: color-mix(in srgb, var(--flipbook-app-secondary) 45%, transparent);
+  /* Nearly opaque: the popup opens over busy page text. */
+  --flipbook-app-popover-bg: color-mix(in srgb, var(--flipbook-app-toolbar) 94%, transparent);
+
+  /* Viewer (w1-system-flipbook) with theme "inherit". */
+  --w1-flipbook-surface: var(--flipbook-app-bg);
+  --w1-flipbook-stage: var(--flipbook-app-stage);
+  --w1-flipbook-toolbar: var(--flipbook-app-toolbar);
+  --w1-flipbook-text: var(--flipbook-app-text);
+  --w1-flipbook-muted: var(--flipbook-app-muted);
+  --w1-flipbook-accent: var(--flipbook-app-secondary);
+  --w1-flipbook-control-bg: var(--flipbook-app-toolbar);
+  --w1-flipbook-control-hover: var(--flipbook-app-secondary-soft);
+  --w1-flipbook-control-text: var(--flipbook-app-primary);
+  --w1-flipbook-border: var(--flipbook-app-border);
+  --w1-flipbook-focus-ring: var(--flipbook-app-secondary);
+  --w1-flipbook-paper: var(--flipbook-app-paper);
+  --w1-flipbook-thumb-active: var(--flipbook-app-secondary);
+}
+
+[data-app-palette] body {
+  color: var(--flipbook-app-text);
+  background: var(--flipbook-app-bg);
+}

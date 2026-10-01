@@ -1,6 +1,9 @@
 import { Metadata, Viewport } from 'next'
 import { LandscapeQrOverlay } from '@/components/layout/LandscapeQrOverlay'
+import { getAppPalette } from '@/lib/theme/appPalette'
+import '@werk1/w1-system-widgets/styles.css'
 import './global.css'
+import './theme/palettes.css'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -15,9 +18,10 @@ export const metadata: Metadata = {
   description: 'flipbook-advantage',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const palette = await getAppPalette()
   return (
-    <html lang="de" suppressHydrationWarning>
+    <html lang="de" data-app-palette={palette} suppressHydrationWarning>
       <head>
         <link rel="stylesheet" href="/api/app-fonts.css" />
       </head>

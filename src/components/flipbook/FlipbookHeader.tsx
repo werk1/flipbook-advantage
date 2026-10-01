@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { FlipbookMenuItem } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
 import { flipbookLocaleQuery } from '@/lib/blocks/flipbook/locale'
 import styles from './FlipbookHeader.module.css'
@@ -12,11 +12,17 @@ export function FlipbookHeader({
   activeSlug,
   locale,
   title,
+  tools,
+  showMenu = false,
 }: {
   items: FlipbookMenuItem[]
   activeSlug?: string
   locale: string
   title: string
+  /** Viewer controls shown at the right end of the bar. */
+  tools?: ReactNode
+  /** "Flipbooks" menu of all published books; hidden until the archive feature. */
+  showMenu?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const navRef = useRef<HTMLElement>(null)
@@ -43,6 +49,8 @@ export function FlipbookHeader({
       <a className={styles.brand} href={`/${localeQuery}`}>
         {title}
       </a>
+      <div className={styles.end}>
+      {showMenu && (
       <nav className={styles.nav} ref={navRef}>
         <button
           type="button"
@@ -69,6 +77,9 @@ export function FlipbookHeader({
           </ul>
         )}
       </nav>
+      )}
+      {tools}
+      </div>
     </header>
   )
 }
