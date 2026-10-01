@@ -18,6 +18,7 @@ const LABELS: Record<'de' | 'en', W1FlipbookLabels> = {
     retry: 'Erneut versuchen',
     spreadSingle: 'Einzelseitenansicht',
     spreadDouble: 'Doppelseitenansicht',
+    thumbnailSpread: (first, last) => `Seiten ${first}–${last}`,
   },
   en: {
     previous: 'Previous page',
@@ -36,6 +37,7 @@ const LABELS: Record<'de' | 'en', W1FlipbookLabels> = {
     retry: 'Retry',
     spreadSingle: 'Single page view',
     spreadDouble: 'Two page view',
+    thumbnailSpread: (first, last) => `Pages ${first}–${last}`,
   },
 }
 

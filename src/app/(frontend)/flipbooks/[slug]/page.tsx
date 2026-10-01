@@ -1,7 +1,7 @@
 import ClientLayout from '@/components/client-layout/ClientLayout'
 import { FlipbookReader } from '@/components/flipbook/FlipbookReader'
 import { resolveFlipbookLocale } from '@/lib/blocks/flipbook/locale'
-import { coverUrlOf, listPublishedFlipbooks, loadPublishedFlipbook, mapFlipbookToInput } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
+import { coverUrlOf, loadPublishedFlipbook, mapFlipbookToInput } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -9,7 +9,7 @@ import { getPayload } from 'payload'
 
 type FlipbookReaderPageProps = {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ locale?: string; page?: string; nav?: string }>
+  searchParams: Promise<{ locale?: string; page?: string }>
 }
 
 export const dynamic = 'force-dynamic'
@@ -47,10 +47,7 @@ export default async function FlipbookReaderPage({ params, searchParams }: Flipb
   const query = await searchParams
   const locale = resolveFlipbookLocale(query.locale)
   const payload = await getPayload({ config: configPromise })
-  const [doc, items] = await Promise.all([
-    loadPublishedFlipbook(payload, slug, locale),
-    listPublishedFlipbooks(payload, locale),
-  ])
+  const doc = await loadPublishedFlipbook(payload, slug, locale)
   const input = mapFlipbookToInput(doc)
   if (!input) notFound()
 
@@ -59,14 +56,12 @@ export default async function FlipbookReaderPage({ params, searchParams }: Flipb
   const startPage = valid ? requested - 1 : (input.config?.startPage ?? 0)
 
   return (
-    <ClientLayout>
+    <ClientLayout renderBeforeDeviceReady>
+      {/* Canonical deep link and embed link (Payload Admin, Flipbooks
+          collection): no header, no menu — only the flipbook. */}
       <FlipbookReader
         input={{ ...input, config: { ...input.config, startPage } }}
         locale={locale}
-        items={items}
-        activeSlug={slug}
-        siteTitle={input.title ?? 'Flipbooks'}
-        showNav={query.nav === '1'}
       />
     </ClientLayout>
   )

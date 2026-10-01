@@ -1,0 +1,30 @@
+/* Same frame as the package's built-in strip; colours come from the viewer theme. */
+.rail {
+  padding: 8px 0;
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  border-top: 1px solid var(--w1-flipbook-border, #b9b5ad);
+  border-radius: 0 0 var(--w1-flipbook-radius, 8px) var(--w1-flipbook-radius, 8px);
+  --w1-carouselblock-strip-focus-color: var(--w1-flipbook-focus-ring, #1a56db);
+  --w1-carouselblock-strip-focus-width: 3px;
+}
+
+/* A tile is one page or two equal book-format cells; pages are never cropped. */
+.tile {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: var(--w1-flipbook-paper, #f7f4ee);
+}
+
+.cell {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.cell img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

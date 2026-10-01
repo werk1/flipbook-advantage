@@ -59,6 +59,9 @@ RUN apk add --no-cache poppler-utils fontconfig font-dejavu font-liberation
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
+# Install Infisical CLI for production secret loading.
+# The entrypoint in docker-compose.yml wraps the app with `infisical run`.
+RUN npm install -g @infisical/cli
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/assets ./public/assets
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

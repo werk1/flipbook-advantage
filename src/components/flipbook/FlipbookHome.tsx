@@ -36,7 +36,7 @@ export async function FlipbookHome({
 
   if (!input || !slug) {
     return (
-      <ClientLayout>
+      <ClientLayout renderBeforeDeviceReady>
         <main style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
           <FlipbookHeader items={items} locale={locale} title={copy.title} />
           <div style={{ flex: 1, display: 'grid', placeItems: 'center' }}>{copy.empty}</div>
@@ -50,14 +50,14 @@ export async function FlipbookHome({
   const startPage = valid ? requested - 1 : (input.config?.startPage ?? 0)
 
   return (
-    <ClientLayout>
+    <ClientLayout renderBeforeDeviceReady>
       <FlipbookReader
         input={{ ...input, config: { ...input.config, startPage } }}
         locale={locale}
+        showHeader
         items={items}
         activeSlug={slug}
         siteTitle={input.title ?? copy.title}
-        showNav
       />
     </ClientLayout>
   )

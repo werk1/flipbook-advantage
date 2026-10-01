@@ -6,6 +6,7 @@ export type FlipbookSectionOverrides = Pick<
   | 'coverMode'
   | 'direction'
   | 'theme'
+  | 'engine'
   | 'startPage'
   | 'showControls'
   | 'showThumbnails'

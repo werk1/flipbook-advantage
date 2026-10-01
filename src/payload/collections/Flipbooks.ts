@@ -142,11 +142,11 @@ export const Flipbooks: CollectionConfig = {
   },
   fields: [
     {
-      name: "publicLink",
+      name: "embedLink",
       type: "ui",
       admin: {
         components: {
-          Field: "/payload/components/FlipbookPublicLink#FlipbookPublicLink",
+          Field: "/payload/components/FlipbookEmbedLink#FlipbookEmbedLink",
         },
       },
     },
@@ -289,37 +289,16 @@ export const Flipbooks: CollectionConfig = {
     {
       name: "pages",
       type: "array",
-      admin: { readOnly: true, description: "Seiten der veröffentlichten Revision." },
+      admin: {
+        readOnly: true,
+        initCollapsed: true,
+        description: "Seiten der veröffentlichten Revision.",
+      },
       fields: [
         { name: "image", type: "upload", relationTo: "media", required: true },
         { name: "width", type: "number", required: true },
         { name: "height", type: "number", required: true },
         { name: "label", type: "text" },
-      ],
-    },
-    {
-      name: "spreads",
-      type: "array",
-      admin: {
-        readOnly: true,
-        description:
-          "Doppelseiten-Bilder der veröffentlichten Revision (für die Thumbnail-Leiste im Zweiseitenmodus).",
-      },
-      fields: [
-        { name: "image", type: "upload", relationTo: "media", required: true },
-        { name: "firstPage", type: "number", required: true },
-        { name: "lastPage", type: "number", required: true },
-        {
-          name: "coverMode",
-          type: "select",
-          required: true,
-          options: [
-            { label: "covers", value: "covers" },
-            { label: "none", value: "none" },
-          ],
-        },
-        { name: "width", type: "number", required: true },
-        { name: "height", type: "number", required: true },
       ],
     },
     {
@@ -332,6 +311,7 @@ export const Flipbooks: CollectionConfig = {
         selectField("coverMode", "Cover-Modus"),
         selectField("direction", "Leserichtung"),
         selectField("theme", "Theme"),
+        selectField("engine", "Umblätter-Engine"),
         { name: "startPage", label: "Startseite (1-basiert)", type: "number", min: 1 },
         { name: "aspectRatio", label: "Seitenverhältnis (CSS)", type: "text" },
         { name: "maxWidthPx", label: "Maximale Breite (px)", type: "number", min: 200 },

@@ -13,8 +13,6 @@ System-Doku: `doc/w1-flipbook.md` (Datenfluss, Betrieb, Grenzen).
 |---|---|---|
 | `pdfConverter.ts` | **Pure Core** | `pdfinfo`/`pdftoppm`-Wrapper: Probe (Seitenzahl, verschlüsselt), Seitenrendering (`-scale-to 2400`, lange Kante), Job-Tempverzeichnis, Fehlerabbildung (`FlipbookConversionError`). **Keine Payload- oder App-Imports.** `mupdf` (WASM) ist nur als Alternative dokumentiert, nicht implementiert. |
 | `payloadFlipbookConversion.ts` | **Payload-Glue** | Serielle In-Process-Queue (`enqueueFlipbookConversion`), Job (`runFlipbookConversion`), Auslöser (`maybeScheduleFlipbookConversion`), `onInit`-Reset (`resetInterruptedFlipbookJobs`). Self-Updates tragen `W1_SKIP_FLIPBOOK_CONVERSION`. |
-| `spreads.ts` | **Pure Core** (+ `sharp`) | Doppelseiten-Bilder für die Thumbnail-Leiste: Paarungen für `covers` (2–3, 4–5 …) und `none` (1–2, 3–4 …), Zellgröße, Komposition (`composeSpread`, 2400 px breit, Papierfarbe als Rand). Keine Payload-Imports. |
-| `spreads.ts` | **Pure Core** (+ `sharp`) | Doppelseiten-Bilder für die Thumbnail-Leiste: Paarungen für `covers` (2–3, 4–5 …) und `none` (1–2, 3–4 …), Zellgröße nach Seite 1, Komposition (`composeSpread`, 2400 px breit, Papierfarbe als Rand). Keine Payload-Imports. |
 | `cleanup.ts` | **Payload-Glue** | Markiert ersetzte Revisionen (`generatedReleasedAt`), Aufbewahrungsfrist-Timer, Sweep abgelaufener `generatedBy: 'flipbook'`-Medien, Löschen der Seiten eines Flipbooks. |
 | `cover.ts` | **Pure** | `resolveCoverImageId`: Cover aus Seite 1, gewählter Seite oder eigenem Bild. |
 | `index.ts` | API | Öffentliche Exporte der Einheit. |
@@ -45,8 +43,7 @@ System-Doku: `doc/w1-flipbook.md` (Datenfluss, Betrieb, Grenzen).
   (`sourceStamp`), nicht `updatedAt`.
 - Pro Flipbook wartet höchstens ein Job; läuft bereits einer, darf ein
   Folgejob (Quelle ersetzt) eingereiht werden.
-- Doppelseiten: Für jedes Seitenpaar entstehen beide Paarungen (`covers`, `none`) als `media`-Dokumente mit `generatedBy/For/Revision` (Dateiname `…-s0002-0003.png`). Cover und letzte Seite bleiben einzeln, Querformat-Bücher (Seite 1 breiter als hoch) bekommen keine. Ein Fehler beim Zusammensetzen bricht den Job ab.
-- Veröffentlichung in **einem** Update (`pages`, `spreads`, `pageCount`, `coverImage` aus der Cover-Einstellung,
+- Veröffentlichung in **einem** Update (`pages`, `pageCount`, `coverImage` aus der Cover-Einstellung,
   `publishedSourcePdf`, `publishedRevision`, `status: ready`). Vorher wird die
   Revision erneut geprüft; bei Abweichung werden die eigenen Seiten gelöscht.
 - Fehler/Timeout: `status: error`, `errorMessage`, eigene Teilseiten gelöscht,

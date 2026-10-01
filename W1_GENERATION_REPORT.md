@@ -1,6 +1,6 @@
 # W1 System – Generierungs-Report
 
-**Generiert am:** 2026-09-30 12:00:56 UTC
+**Generiert am:** 2026-10-01 05:56:42 UTC
 
 ---
 
@@ -72,7 +72,7 @@ _(keine)_
 
 - `flipbook-advantage/src/payload/collections/Flipbooks.ts`
 - `flipbook-advantage/src/payload/components/FlipbookConvertButton.tsx`
-- `flipbook-advantage/src/payload/components/FlipbookPublicLink.tsx`
+- `flipbook-advantage/src/payload/components/FlipbookEmbedLink.tsx`
 - `flipbook-advantage/src/app/(payload)/api/flipbook-convert/route.ts`
 - `flipbook-advantage/src/lib/flipbook/README.md`
 - `flipbook-advantage/src/lib/flipbook/index.ts`
@@ -80,7 +80,6 @@ _(keine)_
 - `flipbook-advantage/src/lib/flipbook/payloadFlipbookConversion.ts`
 - `flipbook-advantage/src/lib/flipbook/cleanup.ts`
 - `flipbook-advantage/src/lib/flipbook/cover.ts`
-- `flipbook-advantage/src/lib/flipbook/spreads.ts`
 - `flipbook-advantage/src/payload/blocks/FlipbookSection.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/config.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/labels.ts`
@@ -92,6 +91,8 @@ _(keine)_
 - `flipbook-advantage/src/components/flipbook/FlipbookHeader.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookHeader.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookHome.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.module.css`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/[slug]/page.tsx`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/flipbooks.module.css`
 - `flipbook-advantage/src/app/(frontend)/flipbooks/page.tsx`
@@ -104,8 +105,6 @@ _(keine)_
 - `package.json`
 - `next.config.mjs`
 - `Dockerfile`
-- `docker-compose.yml`
-- `docker-compose.dev.yml`
 - `scripts/docker-dev-app.sh`
 - `docker/dev/Dockerfile`
 - `scripts/push.sh`
@@ -168,10 +167,12 @@ _(keine)_
 - `autodeploy/multi/validate-runtime-packages.js`
 - `autodeploy/multi/setup_deploy_server.sh`
 - `autodeploy/multi/test_setup_and_copy_multi-repo.sh`
+- `autodeploy/multi/Dockerfile_Mongo`
 - `.env.example`
-- `.env.autodeploy`
 - `src/types/payload-next-css.d.ts`
 - `.gitignore`
+- `.gitattributes`
+- `docs/deployment/SECRETS_PROD.md`
 - `.npmrc`
 - `src/payload/blocks/index.ts`
 - `src/payload/collections/index.ts`
@@ -203,7 +204,7 @@ _(keine)_
 | W1 Rule Snapshot | `unknown` |
 | Basis Docs Source | `local generation snapshot` |
 | Basis Docs Mode | `embedded-template-fallback` |
-| Snapshot Datum | `2026-09-30 12:00:56 UTC` |
+| Snapshot Datum | `2026-10-01 05:56:42 UTC` |
 | Aktive Module | `flipbook` |
 | Validator | `ok` |
 | Snippet Warnungen | `0` |
@@ -285,6 +286,7 @@ _(keine)_
 - `docs/archive/README.md`
 - `docs/audit/README.md`
 - `docs/contracts/flipbook-app-integration-contract.md`
+- `docs/deployment/SECRETS_PROD.md`
 
 ---
 

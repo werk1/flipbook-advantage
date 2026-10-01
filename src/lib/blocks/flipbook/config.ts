@@ -2,6 +2,7 @@ export const FLIPBOOK_SPREAD_MODES = ['auto', 'single', 'double'] as const
 export const FLIPBOOK_COVER_MODES = ['covers', 'none'] as const
 export const FLIPBOOK_DIRECTIONS = ['ltr', 'rtl'] as const
 export const FLIPBOOK_THEMES = ['inherit', 'light', 'dark'] as const
+export const FLIPBOOK_ENGINES = ['auto', 'strip', 'webgl'] as const
 
 export const FLIPBOOK_BOOLEAN_CONFIG_KEYS = [
   'showControls',
@@ -45,5 +46,10 @@ export const FLIPBOOK_SELECT_OPTIONS = {
     { label: 'Vom App-Theme erben', value: 'inherit' },
     { label: 'Hell', value: 'light' },
     { label: 'Dunkel', value: 'dark' },
+  ],
+  engine: [
+    { label: 'Automatisch', value: 'auto' },
+    { label: 'DOM Strip-Curl', value: 'strip' },
+    { label: 'WebGL Mesh-Curl', value: 'webgl' },
   ],
 } as const

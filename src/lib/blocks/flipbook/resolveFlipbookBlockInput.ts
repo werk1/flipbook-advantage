@@ -1,5 +1,5 @@
 import type { Payload } from 'payload'
-import type { W1FlipbookConfig, W1FlipbookInput, W1FlipbookPage, W1FlipbookSpread } from '@werk1/w1-system-flipbook/types'
+import type { W1FlipbookConfig, W1FlipbookInput, W1FlipbookPage } from '@werk1/w1-system-flipbook/types'
 import { mergeConfig } from '@werk1/w1-system-flipbook/config'
 import type { HybridPageResolveContext, NonArticlePageSection } from '@/lib/pages/types'
 import { FLIPBOOK_BOOLEAN_CONFIG_KEYS } from './config'
@@ -52,46 +52,11 @@ export function mapFlipbookPage(entry: unknown, index: number): W1FlipbookPage |
   }
 }
 
-const SPREAD_THUMB_PREFERENCE = ['sm', 'md', 'thumb'] as const
-const SPREAD_IMAGE_PREFERENCE = ['lg', 'xl', 'md'] as const
-
-/** Maps `spreads[]` (1-based page numbers in the document) to the package's 0-based spread type. */
-export function mapFlipbookSpread(entry: unknown, index: number, pageCount: number): W1FlipbookSpread | null {
-  const item = asRec(entry)
-  const media = asRec(item?.image)
-  if (!item || !media) return null
-
-  const first = num(item.firstPage)
-  const last = num(item.lastPage)
-  const width = num(item.width)
-  const height = num(item.height)
-  const coverMode = item.coverMode === 'covers' || item.coverMode === 'none' ? item.coverMode : null
-  if (!first || !last || !width || !height || !coverMode) return null
-  if (first < 1 || last !== first + 1 || last > pageCount) return null
-
-  const sizes = asRec(media.sizes)
-  const sizeUrl = (name: string) => str(asRec(sizes?.[name])?.url)
-  const imageUrl = SPREAD_IMAGE_PREFERENCE.map(sizeUrl).find(Boolean) ?? str(media.url)
-  if (!imageUrl) return null
-  const id = typeof media.id === 'string' || typeof media.id === 'number' ? String(media.id) : `spread-${index}`
-
-  return {
-    id,
-    pages: [first - 1, last - 1],
-    coverMode,
-    imageUrl,
-    thumbnailUrl: SPREAD_THUMB_PREFERENCE.map(sizeUrl).find(Boolean) ?? undefined,
-    width,
-    height,
-    alt: str(media.alt) ?? `${first}\u2013${last}`,
-  }
-}
-
 function readDefaultConfig(raw: unknown): W1FlipbookConfig {
   const source = asRec(raw)
   if (!source) return {}
   const config: W1FlipbookConfig = {}
-  for (const key of ['spreadMode', 'coverMode', 'direction', 'theme'] as const) {
+  for (const key of ['spreadMode', 'coverMode', 'direction', 'theme', 'engine'] as const) {
     const value = str(source[key])
     if (value) (config as Rec)[key] = value
   }
@@ -112,7 +77,7 @@ const parseTriState = (value: unknown): boolean | undefined =>
 
 export function readSectionOverrides(section: Rec): FlipbookSectionOverrides {
   const overrides: FlipbookSectionOverrides = {}
-  for (const key of ['spreadMode', 'coverMode', 'direction', 'theme'] as const) {
+  for (const key of ['spreadMode', 'coverMode', 'direction', 'theme', 'engine'] as const) {
     const value = str(section[key])
     if (value) (overrides as Rec)[key] = value
   }
@@ -148,16 +113,11 @@ export function mapFlipbookToInput(
   const slug = str(flipbook.slug)
   if (!slug || !pdfUrl || pages.length === 0) return null
 
-  const spreads = (Array.isArray(flipbook.spreads) ? flipbook.spreads : [])
-    .map((entry, index) => mapFlipbookSpread(entry, index, pages.length))
-    .filter((spread): spread is W1FlipbookSpread => spread !== null)
-
   return {
     slug,
     title: str(flipbook.title) ?? undefined,
     pdfUrl,
     pages,
-    ...(spreads.length > 0 ? { spreads } : {}),
     config: mergeConfig({ ...readDefaultConfig(flipbook.defaultConfig), ...overrides }),
   }
 }

@@ -31,7 +31,6 @@ export {
   FLIPBOOK_INTERRUPTED_MESSAGE,
   W1_SKIP_FLIPBOOK_CONVERSION,
   buildPageAlt,
-  buildSpreadAlt,
   defaultFlipbookConverter,
   deleteFlipbookGeneratedPages,
   enqueueFlipbookConversion,
@@ -54,13 +53,3 @@ export {
   scheduleSupersededCleanup,
   sweepGeneratedMedia,
 } from './cleanup'
-export {
-  SPREAD_PAPER_COLOR,
-  SPREAD_WIDTH_PX,
-  composeSpread,
-  expectedSpreadPairs,
-  shouldComposeSpreads,
-  spreadCellSize,
-  spreadPairsEndingAt,
-} from './spreads'
-export type { FlipbookSpreadCoverMode, SpreadPair } from './spreads'

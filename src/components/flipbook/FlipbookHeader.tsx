@@ -21,7 +21,6 @@ export function FlipbookHeader({
   const [open, setOpen] = useState(false)
   const navRef = useRef<HTMLElement>(null)
   const localeQuery = flipbookLocaleQuery(locale)
-  const menuQuery = `?nav=1${flipbookLocaleQuery(locale, '&')}`
 
   useEffect(() => {
     if (!open) return
@@ -60,7 +59,7 @@ export function FlipbookHeader({
               <li key={item.slug}>
                 <a
                   className={styles.menuItem}
-                  href={`/flipbooks/${item.slug}${menuQuery}`}
+                  href={`/?book=${encodeURIComponent(item.slug)}${flipbookLocaleQuery(locale, '&')}`}
                   aria-current={item.slug === activeSlug ? 'page' : undefined}
                 >
                   {item.title}

@@ -57,6 +57,7 @@ export const FlipbookSectionBlock: Block = {
     overrideSelect('coverMode', 'Cover-Modus'),
     overrideSelect('direction', 'Leserichtung'),
     overrideSelect('theme', 'Theme'),
+    overrideSelect('engine', 'Umblätter-Engine'),
     {
       name: 'startPage',
       label: 'Startseite (1-basiert)',

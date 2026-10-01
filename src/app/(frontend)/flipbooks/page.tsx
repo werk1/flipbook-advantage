@@ -52,7 +52,7 @@ export default async function FlipbooksPage({ searchParams }: FlipbooksPageProps
   const docs = result.docs as unknown as ListedFlipbook[]
 
   return (
-    <ClientLayout>
+    <ClientLayout renderBeforeDeviceReady>
       <main className={styles.main}>
         <h1>{copy.title}</h1>
         {docs.length === 0 ? (
@@ -63,7 +63,7 @@ export default async function FlipbooksPage({ searchParams }: FlipbooksPageProps
               const cover = doc.coverImage?.sizes?.sm?.url ?? doc.coverImage?.sizes?.thumb?.url ?? doc.coverImage?.url
               return (
                 <li key={doc.id}>
-                  <a className={styles.card} href={`/flipbooks/${doc.slug}?nav=1${localeParam}`}>
+                  <a className={styles.card} href={`/flipbooks/${doc.slug}${localeQuery}`}>
                     {cover ? <img className={styles.cover} src={cover} alt={doc.coverImage?.alt ?? ''} loading="lazy" /> : <span className={styles.cover} />}
                     <span className={styles.title}>{doc.title ?? doc.slug}</span>
                     {doc.pageCount ? <span className={styles.meta}>{doc.pageCount} {copy.pages}</span> : null}

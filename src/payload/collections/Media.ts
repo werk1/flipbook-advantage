@@ -143,7 +143,6 @@ async function assertMediaNotReferencedByFlipbook({
         { sourcePdf: { equals: id } },
         { publishedSourcePdf: { equals: id } },
         { "pages.image": { equals: id } },
-        { "spreads.image": { equals: id } },
         { "cover.image": { equals: id } },
       ],
     },

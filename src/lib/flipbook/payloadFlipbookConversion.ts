@@ -10,7 +10,6 @@ import {
   scheduleSupersededCleanup,
   sweepGeneratedMedia,
 } from './cleanup'
-import { composeSpread, shouldComposeSpreads, spreadCellSize, spreadPairsEndingAt, type FlipbookSpreadCoverMode } from './spreads'
 import {
   clearTempRoot,
   createJobDir,
@@ -70,7 +69,6 @@ export type FlipbookConverter = {
   sha256File: typeof sha256File
   probePdf: typeof probePdf
   renderPage: typeof renderPage
-  composeSpread: typeof composeSpread
 }
 
 export const defaultFlipbookConverter: FlipbookConverter = {
@@ -81,7 +79,6 @@ export const defaultFlipbookConverter: FlipbookConverter = {
   sha256File,
   probePdf,
   renderPage,
-  composeSpread,
 }
 
 export type FlipbookConversionOutcome =
@@ -138,14 +135,6 @@ const ALT_PATTERNS: Record<string, (page: number, title: string) => string> = {
 export const buildPageAlt = (locale: string, page: number, title: string): string =>
   (ALT_PATTERNS[locale] ?? ALT_PATTERNS.en)(page, title)
 
-const SPREAD_ALT_PATTERNS: Record<string, (first: number, last: number, title: string) => string> = {
-  de: (first, last, title) => `Seiten ${first}\u2013${last} von ${title}`,
-  en: (first, last, title) => `Pages ${first}\u2013${last} of ${title}`,
-}
-
-export const buildSpreadAlt = (locale: string, first: number, last: number, title: string): string =>
-  (SPREAD_ALT_PATTERNS[locale] ?? SPREAD_ALT_PATTERNS.en)(first, last, title)
-
 const updateFlipbook = (payload: Payload, id: IdLike, data: Record<string, unknown>) =>
   payload.update({
     collection: 'flipbooks' as never,
@@ -185,19 +174,20 @@ const loadFlipbookForJob = async (
   return { doc, sourceMatches: false }
 }
 
-async function createGeneratedMedia(
+async function createPageMedia(
   payload: Payload,
   params: {
     flipbookId: IdLike
     revision: string
-    filename: string
+    revision8: string
+    pageNumber: number
     filePath: string
     jobDir: string
-    altFor: (locale: string, title: string) => string
   },
-): Promise<{ id: IdLike; filePath: string }> {
+): Promise<IdLike> {
   const { defaultLocale, locales } = readLocales(payload)
-  const target = path.join(params.jobDir, params.filename)
+  const filename = `fb-${params.flipbookId}-${params.revision8}-p${String(params.pageNumber).padStart(4, '0')}.png`
+  const target = path.join(params.jobDir, filename)
   await fs.rename(params.filePath, target)
 
   const titleFor = async (locale: string): Promise<string> => {
@@ -210,7 +200,7 @@ async function createGeneratedMedia(
   const created = (await payload.create({
     collection: 'media',
     data: {
-      alt: params.altFor(defaultLocale, await titleFor(defaultLocale)),
+      alt: buildPageAlt(defaultLocale, params.pageNumber, await titleFor(defaultLocale)),
       generatedBy: FLIPBOOK_GENERATOR,
       generatedFor: String(params.flipbookId),
       generatedRevision: params.revision,
@@ -225,22 +215,11 @@ async function createGeneratedMedia(
       collection: 'media',
       id: created.id,
       locale: locale as never,
-      data: { alt: params.altFor(locale, await titleFor(locale)) } as never,
+      data: { alt: buildPageAlt(locale, params.pageNumber, await titleFor(locale)) } as never,
       overrideAccess: true,
     })
   }
-  return { id: created.id, filePath: target }
-}
-
-const pad4 = (n: number) => String(n).padStart(4, '0')
-
-type SpreadEntry = {
-  image: IdLike
-  firstPage: number
-  lastPage: number
-  coverMode: FlipbookSpreadCoverMode
-  width: number
-  height: number
+  return created.id
 }
 
 export async function runFlipbookConversion(
@@ -258,7 +237,6 @@ export async function runFlipbookConversion(
   if (!sourceId) return 'no-source'
 
   const createdPageIds: IdLike[] = []
-  const spreadEntries: SpreadEntry[] = []
   let jobDir: string | null = null
 
   try {
@@ -295,52 +273,21 @@ export async function runFlipbookConversion(
     const deadline = Date.now() + (options.pageTimeoutMs ?? FLIPBOOK_PAGE_TIMEOUT_MS) * probe.pageCount
     jobDir = await converter.createJobDir()
     const pages: Array<{ image: IdLike; width: number; height: number }> = []
-    const pagePaths = new Map<number, string>()
-    let spreadCell: { width: number; height: number } | null = null
     const progressEvery = Math.max(1, Math.ceil(probe.pageCount / 20))
 
     for (let pageNumber = 1; pageNumber <= probe.pageCount; pageNumber += 1) {
       if (Date.now() > deadline) throw new FlipbookConversionError('timeout', `Jobgrenze bei Seite ${pageNumber}`)
       const rendered = await converter.renderPage(filePath, pageNumber, jobDir)
-      const revision8 = sha.slice(0, 8)
-      const page = await createGeneratedMedia(payload, {
+      const imageId = await createPageMedia(payload, {
         flipbookId,
         revision,
-        filename: `fb-${flipbookId}-${revision8}-p${pad4(pageNumber)}.png`,
+        revision8: sha.slice(0, 8),
+        pageNumber,
         filePath: rendered.filePath,
         jobDir,
-        altFor: (locale, title) => buildPageAlt(locale, pageNumber, title),
       })
-      createdPageIds.push(page.id)
-      pages.push({ image: page.id, width: rendered.width, height: rendered.height })
-      pagePaths.set(pageNumber, page.filePath)
-
-      if (pageNumber === 1 && shouldComposeSpreads(rendered)) spreadCell = spreadCellSize(rendered)
-      if (spreadCell) {
-        for (const pair of spreadPairsEndingAt(pageNumber)) {
-          const [first, last] = pair.pages
-          const leftPath = pagePaths.get(first)
-          const rightPath = pagePaths.get(last)
-          if (!leftPath || !rightPath) continue
-          const outPath = path.join(jobDir, `compose-${pad4(first)}-${pad4(last)}.png`)
-          const size = await converter.composeSpread({ leftPath, rightPath, outPath, cell: spreadCell })
-          const spread = await createGeneratedMedia(payload, {
-            flipbookId,
-            revision,
-            filename: `fb-${flipbookId}-${revision8}-s${pad4(first)}-${pad4(last)}.png`,
-            filePath: outPath,
-            jobDir,
-            altFor: (locale, title) => buildSpreadAlt(locale, first, last, title),
-          })
-          createdPageIds.push(spread.id)
-          spreadEntries.push({ image: spread.id, firstPage: first, lastPage: last, coverMode: pair.coverMode, ...size })
-        }
-      }
-      const previousPath = pagePaths.get(pageNumber - 1)
-      if (previousPath) {
-        pagePaths.delete(pageNumber - 1)
-        await fs.rm(previousPath, { force: true })
-      }
+      createdPageIds.push(imageId)
+      pages.push({ image: imageId, width: rendered.width, height: rendered.height })
 
       if (pageNumber % progressEvery === 0 && pageNumber < probe.pageCount) {
         const updated = await updateFlipbook(payload, flipbookId, { progress: `${pageNumber}/${probe.pageCount}` })
@@ -368,7 +315,6 @@ export async function runFlipbookConversion(
       publishedSourcePdf: sourceId,
       publishedRevision: revision,
       pages,
-      spreads: spreadEntries,
       pageCount: pages.length,
       coverImage: resolveCoverImageId(current.cover as FlipbookCoverSettings, pages),
       status: 'ready',

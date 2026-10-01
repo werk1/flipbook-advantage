@@ -77,9 +77,11 @@ apps with module `flipbook` active.
 
 ## Package-Owned Surface
 
-- Page-flip rendering with the package's own "Strip-Curl" engine (CSS 3D
-  strips, GSAP animation, `w1-system-gsap-gesture` drag; no external flip
-  library, no `extraNpm`), spread/cover/direction handling, controls, thumbnails, zoom,
+- Page-flip rendering with the package's own engines: WebGL mesh-curl
+  (three.js, lazily loaded) or DOM "Strip-Curl" fallback — selected via
+  `config.engine` (`'auto'` default) with automatic strip fallback without
+  WebGL 2; GSAP animation, `w1-system-gsap-gesture` drag, no external flip
+  library, no `extraNpm`. Spread/cover/direction handling, controls, thumbnails, zoom,
   fullscreen, keyboard/swipe navigation.
 - The `W1FlipbookInput`/`W1FlipbookConfig` contracts — app code passes prepared
   page-image data; the package never queries Payload or app routes.

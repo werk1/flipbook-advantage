@@ -21,10 +21,18 @@ import { GlobalOverlays } from "../overlays";
 
 interface ClientLayoutProps {
   children?: React.ReactNode
+  /**
+   * Render and show the children on the server and on the first client
+   * render instead of waiting for device detection. For routes whose content
+   * is device-independent at first paint and SSR-safe (the flipbook reader
+   * and listing). Default false keeps the device-gated behaviour.
+   */
+  renderBeforeDeviceReady?: boolean
 }
 
 const ClientLayout = ({
   children,
+  renderBeforeDeviceReady = false,
 }: ClientLayoutProps) => {
   // Local loading state for smooth overlay transitions
   const [isInitializing, setIsInitializing] = useState(true);
@@ -83,7 +91,7 @@ const ClientLayout = ({
   }, [isReady]);
 
   // Show main content when device is ready OR when we're fading out the overlay
-  const showMainContent = isReady || !isInitializing;
+  const showMainContent = renderBeforeDeviceReady || isReady || !isInitializing;
   const hasChildren = Children.count(children) > 0;
   const showSetupHint = process.env.NODE_ENV === "development" && !hasChildren;
   const gsapRuntimeValue = useMemo(
@@ -140,7 +148,7 @@ const ClientLayout = ({
           {/* Main content */}
           <div
             className={`${styles.mainContent} ${
-              is_devicePP || is_devicePL || is_deviceD || isFullscreen || showSetupHint
+              renderBeforeDeviceReady || is_devicePP || is_devicePL || is_deviceD || isFullscreen || showSetupHint
                 ? styles.mainContentVisible
                 : styles.mainContentHidden
             }`}
