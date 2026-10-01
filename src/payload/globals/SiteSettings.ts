@@ -1,3 +1,4 @@
+import { LOGO_SCALE } from "@/lib/theme/clientLogoVariants";
 import type { GlobalConfig } from "payload";
 
 export const SiteSettings: GlobalConfig = {
@@ -96,6 +97,21 @@ export const SiteSettings: GlobalConfig = {
           type: "upload",
           relationTo: "media",
           filterOptions: { mimeType: { contains: "image" } },
+        },
+        {
+          name: "logoScale",
+          label: { de: "Logo-Größe (%)", en: "Logo size (%)" },
+          type: "number",
+          defaultValue: LOGO_SCALE.default,
+          min: LOGO_SCALE.min,
+          max: LOGO_SCALE.max,
+          admin: {
+            step: 5,
+            description: {
+              de: `Größe des Logos links oben: 100 = Standard, erlaubt sind ${LOGO_SCALE.min} bis ${LOGO_SCALE.max}. Das Logo bleibt links ausgerichtet, die Höhe der Kopfzeile ändert sich nicht.`,
+              en: `Size of the logo at the top left: 100 = standard, allowed are ${LOGO_SCALE.min} to ${LOGO_SCALE.max}. The logo stays left-aligned, the height of the header does not change.`,
+            },
+          },
         },
         {
           name: "pictogramPositive",
