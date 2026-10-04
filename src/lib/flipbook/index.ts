@@ -15,6 +15,7 @@ export {
   FlipbookConversionError,
   clearTempRoot,
   createJobDir,
+  extractTextLayout,
   isPdfToolingAvailable,
   probePdf,
   readPdfSignature,

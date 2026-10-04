@@ -10,9 +10,12 @@ import {
   scheduleSupersededCleanup,
   sweepGeneratedMedia,
 } from './cleanup'
+import { applyTextStyles, parseBboxLayout } from '@werk1/w1-system-pdfedit/extract'
 import {
   clearTempRoot,
   createJobDir,
+  extractStyleLayout,
+  extractTextLayout,
   FLIPBOOK_PAGE_TIMEOUT_MS,
   FlipbookConversionError,
   isPdfToolingAvailable,
@@ -69,6 +72,9 @@ export type FlipbookConverter = {
   sha256File: typeof sha256File
   probePdf: typeof probePdf
   renderPage: typeof renderPage
+  extractTextLayout: typeof extractTextLayout
+  /** Optional: adds font/size/colour to the text blocks. A failure keeps the unstyled model. */
+  extractStyleLayout?: typeof extractStyleLayout
 }
 
 export const defaultFlipbookConverter: FlipbookConverter = {
@@ -79,6 +85,8 @@ export const defaultFlipbookConverter: FlipbookConverter = {
   sha256File,
   probePdf,
   renderPage,
+  extractTextLayout,
+  extractStyleLayout,
 }
 
 export type FlipbookConversionOutcome =
@@ -310,12 +318,32 @@ export async function runFlipbookConversion(
       return 'superseded'
     }
 
+    // Text artifact of the published revision (pdfedit/searchable PDF):
+    // one bbox-layout extraction for the whole document. A failure must not
+    // break the flipbook conversion — the pages are published without a
+    // text model and the next conversion can fill it in.
+    let textModel: unknown = null
+    try {
+      const textXml = await converter.extractTextLayout(filePath)
+      textModel = parseBboxLayout(textXml, { revision })
+    } catch (error) {
+      payload.logger.warn(`flipbook: text extraction for ${flipbookId} failed: ${String(error)}`)
+    }
+    if (textModel && converter.extractStyleLayout) {
+      try {
+        textModel = applyTextStyles(textModel as ReturnType<typeof parseBboxLayout>, await converter.extractStyleLayout(filePath))
+      } catch (error) {
+        payload.logger.warn(`flipbook: style extraction for ${flipbookId} failed: ${String(error)}`)
+      }
+    }
+
     const previousRevision = typeof current.publishedRevision === 'string' ? current.publishedRevision : null
     await updateFlipbook(payload, flipbookId, {
       publishedSourcePdf: sourceId,
       publishedRevision: revision,
       pages,
       pageCount: pages.length,
+      textModel,
       coverImage: resolveCoverImageId(current.cover as FlipbookCoverSettings, pages),
       status: 'ready',
       progress: `${pages.length}/${pages.length}`,

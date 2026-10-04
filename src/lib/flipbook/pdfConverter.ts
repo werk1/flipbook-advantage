@@ -67,11 +67,12 @@ async function run(
   command: string,
   args: string[],
   timeoutMs: number,
+  maxBuffer = 8 * 1024 * 1024,
 ): Promise<{ stdout: string; stderr: string }> {
   try {
     return await execFileAsync(command, args, {
       timeout: timeoutMs,
-      maxBuffer: 8 * 1024 * 1024,
+      maxBuffer,
     })
   } catch (error) {
     const failure = error as ExecFailure
@@ -168,6 +169,39 @@ export async function renderPage(
   const size = png ? readPngSize(png) : null
   if (!size) throw new FlipbookConversionError('render-failed', `Seite ${pageNumber}`)
   return { filePath: output, ...size }
+}
+
+/**
+ * Extracts the document's text layer as `pdftotext -bbox-layout` XHTML
+ * (page/flow/block/line/word with CropBox coordinates in points). The
+ * pdfedit package parses this into `W1FormTextModel`; the conversion
+ * pipeline stores it alongside the published pages of a revision.
+ */
+export async function extractTextLayout(filePath: string): Promise<string> {
+  const { stdout } = await run(
+    'pdftotext',
+    ['-bbox-layout', filePath, '-'],
+    FLIPBOOK_PROBE_TIMEOUT_MS,
+    64 * 1024 * 1024,
+  )
+  if (!stdout.includes('<page')) throw new FlipbookConversionError('render-failed', 'keine Textebene')
+  return stdout
+}
+
+/**
+ * Extracts the document's text styles (font, size in points, colour) as
+ * `pdftohtml -xml -zoom 1 -i` XML. The pdfedit package maps them onto the
+ * text blocks (`applyTextStyles`).
+ */
+export async function extractStyleLayout(filePath: string): Promise<string> {
+  const { stdout } = await run(
+    'pdftohtml',
+    ['-xml', '-zoom', '1', '-i', '-stdout', filePath],
+    FLIPBOOK_PROBE_TIMEOUT_MS,
+    128 * 1024 * 1024,
+  )
+  if (!stdout.includes('<page')) throw new FlipbookConversionError('render-failed', 'keine Stilinformationen')
+  return stdout
 }
 
 export const resolveFlipbookTempRoot = () =>

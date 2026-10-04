@@ -106,6 +106,7 @@ const nextConfig = {
     '@werk1/w1-system-gsap-scroll',
     '@werk1/w1-system-imageblock',
     '@werk1/w1-system-media-manager',
+    '@werk1/w1-system-pdfedit',
     '@werk1/w1-system-timeline-engine',
     '@werk1/w1-system-ui',
     '@werk1/w1-system-widgets',

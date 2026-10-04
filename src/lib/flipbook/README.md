@@ -11,7 +11,7 @@ System-Doku: `doc/w1-flipbook.md` (Datenfluss, Betrieb, Grenzen).
 
 | Datei | Schicht | Inhalt |
 |---|---|---|
-| `pdfConverter.ts` | **Pure Core** | `pdfinfo`/`pdftoppm`-Wrapper: Probe (Seitenzahl, verschlüsselt), Seitenrendering (`-scale-to 2400`, lange Kante), Job-Tempverzeichnis, Fehlerabbildung (`FlipbookConversionError`). **Keine Payload- oder App-Imports.** `mupdf` (WASM) ist nur als Alternative dokumentiert, nicht implementiert. |
+| `pdfConverter.ts` | **Pure Core** | `pdfinfo`/`pdftoppm`/`pdftotext`-Wrapper: Probe (Seitenzahl, verschlüsselt), Seitenrendering (`-scale-to 2400`, lange Kante), Textebenen-Extraktion (`extractTextLayout`, `pdftotext -bbox-layout` → XHTML), Job-Tempverzeichnis, Fehlerabbildung (`FlipbookConversionError`). **Keine Payload- oder App-Imports.** `mupdf` (WASM) ist nur als Alternative dokumentiert, nicht implementiert. |
 | `payloadFlipbookConversion.ts` | **Payload-Glue** | Serielle In-Process-Queue (`enqueueFlipbookConversion`), Job (`runFlipbookConversion`), Auslöser (`maybeScheduleFlipbookConversion`), `onInit`-Reset (`resetInterruptedFlipbookJobs`). Self-Updates tragen `W1_SKIP_FLIPBOOK_CONVERSION`. |
 | `cleanup.ts` | **Payload-Glue** | Markiert ersetzte Revisionen (`generatedReleasedAt`), Aufbewahrungsfrist-Timer, Sweep abgelaufener `generatedBy: 'flipbook'`-Medien, Löschen der Seiten eines Flipbooks. |
 | `cover.ts` | **Pure** | `resolveCoverImageId`: Cover aus Seite 1, gewählter Seite oder eigenem Bild. |
@@ -21,7 +21,9 @@ System-Doku: `doc/w1-flipbook.md` (Datenfluss, Betrieb, Grenzen).
 
 | Ort | Aufgabe |
 |---|---|
-| `src/payload/collections/Flipbooks.ts` | Collection, Quellen-Validierung, Cover-Gruppe + `beforeChange` (`coverImage`), `afterChange`-Auslöser, `afterDelete`-Cleanup |
+| `src/payload/collections/Flipbooks.ts` | Collection, Quellen-Validierung, Cover-Gruppe + `beforeChange` (`coverImage`), `afterChange`-Auslöser, `afterDelete`-Cleanup, `textModel` (JSON-Textebene der publizierten Revision) |
+| `src/payload/collections/Pdfedits.ts`, `Pdfeditrecords.ts` | Pdfedit-Dokument (Flipbook + Feld-Schema) und geordnete Datensätze |
+| `src/app/(payload)/api/pdfedit-*/route.ts`, `src/payload/components/PdfeditEditor*.tsx` | Pdfedit-Editor: Daten-Input, Record-Persistenz, CSV/JSON-Export (`/admin/pdfedit`) |
 | `src/payload/collections/Media.ts` | PDF-MIME, `generatedBy/For/Revision/ReleasedAt`, `baseListFilter`, modulneutraler `beforeDelete`-Guard |
 | `next.config.mjs` | `Cache-Control: public, max-age=3600` nur für `/api/media/file/fb-*` (erzeugte Seitenbilder) |
 | `src/payload/components/FlipbookConvertButton.tsx` | Status, Fortschritt, Neustart, Hinweis „Quelle geändert" |

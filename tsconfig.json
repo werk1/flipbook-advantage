@@ -34,6 +34,8 @@
       "@werk1/w1-system-widgets/*": ["../w1-system-widgets/src/*"],
       "@werk1/w1-system-calendar": ["../w1-system-calendar/src/index.ts"],
       "@werk1/w1-system-calendar/*": ["../w1-system-calendar/src/*"],
+      "@werk1/w1-system-pdfedit": ["../w1-system-pdfedit/src/index.ts"],
+      "@werk1/w1-system-pdfedit/*": ["../w1-system-pdfedit/src/*"],
       "next": ["./node_modules/next"],
       "next/*": ["./node_modules/next/*"],
       "payload": ["./node_modules/payload"],
