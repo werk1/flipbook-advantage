@@ -49,8 +49,10 @@ apps with module `flipbook` active.
 - Frontend routes `src/app/(frontend)/flipbooks/` (listing) and
   `flipbooks/[slug]` (fullscreen reader, canonical deep link for external
   references). The start page `/` is the flipbook host: header bar with a
-  menu of all published flipbooks, first entry open by default,
-  `?book=<slug>` selects another book.
+  menu of all published flipbooks. Open by default: the Site Settings field
+  "Startseiten-Flipbook" (`homeFlipbook`) if it is published, otherwise the
+  first entry; `?book=<slug>` takes precedence. A `pages` document with
+  route `/` is not consulted.
 - Cover selection on the `flipbooks` document (page 1 by default, another
   page or an uploaded image), resolved into `coverImage` for listing and OG
   image.

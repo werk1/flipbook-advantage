@@ -37,6 +37,18 @@ export const SiteSettings: GlobalConfig = {
       },
     },
     {
+      name: "homeFlipbook",
+      label: { de: "Startseiten-Flipbook", en: "Home page flipbook" },
+      type: "relationship",
+      relationTo: "flipbooks",
+      admin: {
+        description: {
+          de: "Dieses Flipbook ist auf der Startseite (/) zuerst geöffnet. Ohne Auswahl, oder solange es nicht veröffentlicht ist, öffnet das erste veröffentlichte Flipbook. ?book=<slug> in der URL hat Vorrang.",
+          en: "This flipbook is opened first on the home page (/). When empty, or while it is not published, the first published flipbook opens. ?book=<slug> in the URL takes precedence.",
+        },
+      },
+    },
+    {
       name: "clientLogo",
       label: { de: "Kunde: Name, Logo, Piktogramm", en: "Client: name, logo, pictogram" },
       type: "group",

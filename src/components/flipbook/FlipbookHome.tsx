@@ -11,6 +11,21 @@ const COPY: Record<string, { title: string; empty: string }> = {
   en: { title: 'Flipbooks', empty: 'No flipbooks published yet.' },
 }
 
+/** Slug of the Site Settings "Startseiten-Flipbook", if one is selected. */
+async function getHomeFlipbookSlug(
+  payload: Awaited<ReturnType<typeof getPayloadClient>>,
+): Promise<string | undefined> {
+  try {
+    const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as {
+      homeFlipbook?: { slug?: unknown } | number | string | null
+    }
+    const home = settings.homeFlipbook
+    return home && typeof home === 'object' && typeof home.slug === 'string' ? home.slug : undefined
+  } catch {
+    return undefined
+  }
+}
+
 /**
  * Startseite = Flipbook-Host: Header mit Menü aller veröffentlichten
  * Flipbooks, erster Eintrag standardmäßig offen. `?book=<slug>` wählt ein
@@ -31,7 +46,10 @@ export async function FlipbookHome({
   const payload = await getPayloadClient()
   const items = await listPublishedFlipbooks(payload, locale)
 
-  const slug = book && items.some((i) => i.slug === book) ? book : items[0]?.slug
+  const homeSlug = await getHomeFlipbookSlug(payload)
+  const isListed = (candidate: string | undefined): candidate is string =>
+    Boolean(candidate) && items.some((i) => i.slug === candidate)
+  const slug = isListed(book) ? book : isListed(homeSlug) ? homeSlug : items[0]?.slug
   const doc = slug ? await loadPublishedFlipbook(payload, slug, locale) : null
   const input = mapFlipbookToInput(doc)
   const clientLogo = await getClientLogo()
