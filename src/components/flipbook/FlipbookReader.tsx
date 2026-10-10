@@ -5,15 +5,22 @@ import { createFlipbookLabels } from '@/lib/blocks/flipbook/labels'
 import type { FlipbookMenuItem } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
 import type { ClientLogo } from '@/lib/theme/clientLogoVariants'
 import { useBoundStore } from '@/stores/boundStore'
-import { W1FlipbookBlock, type W1FlipbookInput, type W1FlipbookToolbarControls } from '@werk1/w1-system-flipbook'
+import { useFlipbookSearch } from '@/lib/blocks/flipbook/search'
+import {
+  W1FlipbookBlock,
+  type W1FlipbookInput,
+  type W1FlipbookSearchPanelProps,
+  type W1FlipbookToolbarControls,
+} from '@werk1/w1-system-flipbook'
 import { devCurlTuning, IS_DEV } from './dev/devCurlTuning'
 import { FlipbookHeader } from './FlipbookHeader'
 import { renderFlipbookNavigationColumn, renderFlipbookNavigationWidget } from './FlipbookNavigationWidget'
 import styles from './FlipbookReader.module.css'
 import { FlipbookSideChrome } from './FlipbookSideChrome'
 import { renderFlipbookThumbnailRail } from './FlipbookThumbnailRail'
-import { FlipbookToolbar, renderFlipbookToolbarBar } from './FlipbookToolbar'
-import { readerDeviceClassNames, resolveReaderLayout } from './readerDevice'
+import { FlipbookSearchIconColumn, FlipbookSearchPanel, type FlipbookSearchVariant } from './FlipbookSearchPanel'
+import { FlipbookToolbar, FlipbookToolbarBar } from './FlipbookToolbar'
+import { isSideLayout, readerDeviceClassNames, resolveReaderLayout } from './readerDevice'
 import { W1SystemMark } from './W1SystemMark'
 
 type FlipbookReaderProps = {
@@ -31,8 +38,10 @@ type FlipbookReaderProps = {
   siteTitle?: string
   /** Issue label for the status bar (`issueOf`), e.g. "Nr. 7/27"; omitted when empty. */
   issue?: string
-  /** Client name and marks from Site Settings: name or logo for the header, pictogram for the phone-landscape bar. */
+  /** Client name and marks from Site Settings: name or logo for the header. */
   clientLogo?: ClientLogo
+  /** Opens the search with this query (a hit of another issue leads here with `?q=`). */
+  initialSearchQuery?: string
 }
 
 const subscribeNever = () => () => {}
@@ -45,7 +54,7 @@ function useHydrated() {
   return useSyncExternalStore(subscribeNever, () => true, () => false)
 }
 
-export function FlipbookReader({ input, locale, showHeader = false, items = [], activeSlug, siteTitle, issue, clientLogo }: FlipbookReaderProps) {
+export function FlipbookReader({ input, locale, showHeader = false, items = [], activeSlug, siteTitle, issue, clientLogo, initialSearchQuery }: FlipbookReaderProps) {
   const deviceInfo = useBoundStore((state) => state.device)
   const hydrated = useHydrated()
 
@@ -58,7 +67,11 @@ export function FlipbookReader({ input, locale, showHeader = false, items = [], 
   const deviceClasses = readerDeviceClassNames(device, layout)
   // Phone portrait: compact counter ("58–59 | 78") in the status bar.
   const compactCounter = layout === 'phonePortrait'
+  // Tablet portrait opens one page at a time; the spread toggle switches to
+  // the double spread.
+  const defaultSpread = layout === 'tabletPortrait' ? 'single' : undefined
   const pageWord = clientLogo?.pageWord
+  const search = useFlipbookSearch(input.slug)
   const labels = useMemo(
     () => createFlipbookLabels(locale, { compactCounter, pageWord }),
     [locale, compactCounter, pageWord],
@@ -98,6 +111,44 @@ export function FlipbookReader({ input, locale, showHeader = false, items = [], 
     window.history.replaceState(window.history.state, '', url)
   }, [])
 
+  const side = isSideLayout(layout)
+
+  // Search: a classic sidebar at the start on desktop (its icon column holds
+  // the search button there), a sheet over the pages on phones and tablets,
+  // from the top in portrait (the navigation widget sits at the bottom) and
+  // from the right in landscape. `searchExpanded` folds the results away
+  // while the query and the marked hit stay.
+  const searchVariant: FlipbookSearchVariant = layout === 'default' ? 'sidebar' : side ? 'column' : 'top'
+  const sidebarSearch = searchVariant === 'sidebar'
+  const [searchExpanded, setSearchExpanded] = useState(() => Boolean(initialSearchQuery?.trim()))
+  // Landscape: slot of the expandable search field in the icon column.
+  const [searchFieldHost, setSearchFieldHost] = useState<HTMLDivElement | null>(null)
+  const renderSearch = useCallback(
+    (panel: W1FlipbookSearchPanelProps) => (
+      <FlipbookSearchPanel
+        panel={panel}
+        variant={searchVariant}
+        expanded={searchExpanded}
+        onExpandedChange={setSearchExpanded}
+        fieldHost={searchFieldHost}
+        locale={locale}
+        currentTitle={siteTitle}
+      />
+    ),
+    [searchVariant, searchExpanded, searchFieldHost, locale, siteTitle],
+  )
+  // Search button of the sheets: opens and closes the whole panel. Folding
+  // the results away while the query stays is the sheet's own chevron. In
+  // landscape the hit list stays closed on opening: it is shown on demand.
+  const searchAction = useCallback(
+    (controls: W1FlipbookToolbarControls) => () => {
+      const open = !controls.search.open
+      controls.search.setOpen(open)
+      setSearchExpanded(open && searchVariant !== 'column')
+    },
+    [searchVariant],
+  )
+
   // The menu bar carries the viewer controls; it sits inside the viewer so
   // it stays visible in fullscreen. Without the menu a slim bar holds them.
   const renderHeaderToolbar = useCallback(
@@ -108,22 +159,53 @@ export function FlipbookReader({ input, locale, showHeader = false, items = [], 
         locale={locale}
         title={brand}
         logo={clientLogo}
-        tools={<FlipbookToolbar controls={controls} showThumbnails={false} showPdf />}
+        tools={
+          <FlipbookToolbar
+            controls={controls}
+            showThumbnails={false}
+            showZoom={false}
+            showPdf
+            onSearch={searchAction(controls)}
+          />
+        }
       />
     ),
-    [items, activeSlug, locale, brand, clientLogo],
+    [items, activeSlug, locale, brand, clientLogo, searchAction],
+  )
+  const renderToolbarBar = useCallback(
+    (controls: W1FlipbookToolbarControls) => (
+      <FlipbookToolbarBar controls={controls} onSearch={searchAction(controls)} />
+    ),
+    [searchAction],
   )
 
-  // Phone landscape: one slim bar (pictogram, counter, icons) beside the
+  // Phone and tablet landscape: one slim bar (icons, counter) beside the
   // pages so the double spread keeps its width, vertical rail at the end.
+  // Landscape: while the search runs, a second icon column stands beside the
+  // menu bar. The menu bar keeps its search button as the on/off switch of
+  // the whole search; the column carries the expandable field, the hit
+  // arrows and the list toggle.
   const renderSideChrome = useCallback(
     (controls: W1FlipbookToolbarControls) => (
-      <FlipbookSideChrome controls={controls} title={brand} logo={clientLogo} />
+      <FlipbookSideChrome
+        controls={controls}
+        onSearch={searchAction(controls)}
+        searchColumn={
+          controls.search.open ? (
+            <FlipbookSearchIconColumn
+              controls={controls}
+              expanded={searchExpanded}
+              onExpandedChange={setSearchExpanded}
+              fieldHostRef={setSearchFieldHost}
+              locale={locale}
+            />
+          ) : undefined
+        }
+      />
     ),
-    [brand, clientLogo],
+    [searchAction, searchExpanded, locale],
   )
-  const side = layout === 'phoneLandscape'
-  const renderToolbar = side ? renderSideChrome : showHeader ? renderHeaderToolbar : renderFlipbookToolbarBar
+  const renderToolbar = side ? renderSideChrome : showHeader ? renderHeaderToolbar : renderToolbarBar
 
   return (
     <main
@@ -139,12 +221,17 @@ export function FlipbookReader({ input, locale, showHeader = false, items = [], 
           onPageChange={handlePageChange}
           deviceInfo={deviceInfo}
           renderThumbnails={renderFlipbookThumbnailRail}
+          search={search}
+          initialSearchQuery={initialSearchQuery}
+          renderSearch={renderSearch}
+          searchPlacement={sidebarSearch ? 'start' : 'overlay'}
           renderToolbar={renderToolbar}
           renderNavigation={side ? renderFlipbookNavigationColumn : renderFlipbookNavigationWidget}
           status={W1_SYSTEM_MARK}
           statusStart={statusStart}
           curlTuning={IS_DEV ? devCurlTuning : undefined}
           chromeLayout={side ? 'side' : 'stacked'}
+          defaultSpread={defaultSpread}
           fill
         />
       </div>

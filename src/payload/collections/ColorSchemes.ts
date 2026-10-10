@@ -1,16 +1,22 @@
 import type { CollectionConfig, Field } from 'payload'
-import { COLOR_SCHEME_TOKENS, isSafeCssValue } from '../../lib/theme/colorSchemeTokens'
+import { COLOR_SCHEME_TOKENS, isOptionalToken, isSafeCssValue } from '../../lib/theme/colorSchemeTokens'
 
 function modeFields(): Field[] {
-  return COLOR_SCHEME_TOKENS.map(({ key, label, hint }) => ({
-    name: key,
-    label,
-    type: 'text',
-    required: true,
-    admin: hint ? { description: hint } : undefined,
-    validate: (value: unknown) =>
-      isSafeCssValue(value) || 'Nur Farb- oder Verlaufswerte (z. B. #3e4c59, rgba(0, 0, 0, 0.1), linear-gradient(…)).',
-  }))
+  return COLOR_SCHEME_TOKENS.map((token) => {
+    const optional = isOptionalToken(token)
+    return {
+      name: token.key,
+      label: token.label,
+      type: 'text',
+      // Optional tokens may stay empty: the viewer keeps its standard colour.
+      required: !optional,
+      admin: token.hint ? { description: token.hint } : undefined,
+      validate: (value: unknown) =>
+        (optional && (value === undefined || value === null || value === '')) ||
+        isSafeCssValue(value) ||
+        'Nur Farb- oder Verlaufswerte (z. B. #3e4c59, rgb(30 110 255 / 28%), linear-gradient(…)).',
+    } satisfies Field
+  })
 }
 
 /**

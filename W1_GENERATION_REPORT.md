@@ -1,6 +1,6 @@
 # W1 System – Generierungs-Report
 
-**Generiert am:** 2026-10-01 13:59:26 UTC
+**Generiert am:** 2026-10-10 07:44:49 UTC
 
 ---
 
@@ -9,11 +9,11 @@
 | Feld | Wert |
 |---|---|
 | Projektname | `flipbook-advantage` |
-| Zielverzeichnis | `/media/win_d/programming/W1_SYSTEM/flipbook-advantage` |
+| Zielverzeichnis | `<workspace>/flipbook-advantage` |
 | Beschreibung | Advantage PDF flipbook |
 | Docker Registry | `reg.werk1.at` |
 | Image | `flipbook-advantage` |
-| Repo URL | `git@werk1.github.com:werk1/flipbook-advantage.git` |
+| Repo URL | `git@github.com:werk1/flipbook-advantage.git` |
 | Git Branch | `main` |
 | GitHub Org | `werk1` |
 | SSH Host | `–` |
@@ -46,7 +46,7 @@ _(keine)_
 
 | Modus | Pakete |
 |---|---|
-| **Workspace** (file:../, lokal vorhanden) | w1-system-device-info, w1-system-gsap-gesture, w1-system-gsap-scroll, w1-system-timeline-engine, w1-system-imageblock, w1-system-media-manager, w1-system-carouselblock, w1-system-font-manager, w1-system-flipbook, w1-system-ui, w1-system-widgets, w1-system-calendar |
+| **Workspace** (file:../, lokal vorhanden) | w1-system-device-info, w1-system-gsap-gesture, w1-system-gsap-scroll, w1-system-timeline-engine, w1-system-imageblock, w1-system-media-manager, w1-system-carouselblock, w1-system-font-manager, w1-system-flipbook, w1-system-ui, w1-system-widgets, w1-system-calendar, w1-system-pdfedit |
 
 ### 3.1 @werk1-Pakete – Geklont (dependencies)
 
@@ -62,6 +62,12 @@ _(keine)_
 - `@werk1/w1-system-ui` → `file:../w1-system-ui`
 - `@werk1/w1-system-widgets` → `file:../w1-system-widgets`
 - `@werk1/w1-system-calendar` → `file:../w1-system-calendar`
+- `@werk1/w1-system-pdfedit` → `file:../w1-system-pdfedit`
+
+### 3.3 Zusätzliche npm-Pakete
+
+- `pdf-lib`
+- `pdfjs-dist`
 
 ---
 
@@ -73,17 +79,6 @@ _(keine)_
 
 ### Modul-Dateien (aus core-v2)
 
-- `flipbook-advantage/src/payload/collections/Flipbooks.ts`
-- `flipbook-advantage/src/payload/components/FlipbookConvertButton.tsx`
-- `flipbook-advantage/src/payload/components/FlipbookEmbedLink.tsx`
-- `flipbook-advantage/src/app/(payload)/api/flipbook-convert/route.ts`
-- `flipbook-advantage/src/lib/flipbook/README.md`
-- `flipbook-advantage/src/lib/flipbook/index.ts`
-- `flipbook-advantage/src/lib/flipbook/pdfConverter.ts`
-- `flipbook-advantage/src/lib/flipbook/payloadFlipbookConversion.ts`
-- `flipbook-advantage/src/lib/flipbook/cleanup.ts`
-- `flipbook-advantage/src/lib/flipbook/cover.ts`
-- `flipbook-advantage/src/payload/blocks/FlipbookSection.ts`
 - `flipbook-advantage/src/components/flipbook/FlipbookHeader.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookHeader.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookHome.tsx`
@@ -91,12 +86,15 @@ _(keine)_
 - `flipbook-advantage/src/components/flipbook/FlipbookNavigationWidget.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookReader.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookReader.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookSearchPanel.module.css`
+- `flipbook-advantage/src/components/flipbook/FlipbookSearchPanel.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookSideChrome.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookThumbnailRail.tsx`
 - `flipbook-advantage/src/components/flipbook/FlipbookToolbar.module.css`
 - `flipbook-advantage/src/components/flipbook/FlipbookToolbar.tsx`
+- `flipbook-advantage/src/components/flipbook/FlipbookWidgetTheme.module.css`
 - `flipbook-advantage/src/components/flipbook/W1SystemMark.module.css`
 - `flipbook-advantage/src/components/flipbook/W1SystemMark.tsx`
 - `flipbook-advantage/src/components/flipbook/dev/ColorSchemeEditor.tsx`
@@ -110,7 +108,25 @@ _(keine)_
 - `flipbook-advantage/src/lib/blocks/flipbook/labels.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/locale.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/resolveFlipbookBlockInput.ts`
+- `flipbook-advantage/src/lib/blocks/flipbook/search.ts`
 - `flipbook-advantage/src/lib/blocks/flipbook/types.ts`
+- `flipbook-advantage/src/lib/blocks/flipbook/viewerAccess.ts`
+- `flipbook-advantage/src/payload/collections/Flipbooks.ts`
+- `flipbook-advantage/src/payload/collections/FlipbookSeries.ts`
+- `flipbook-advantage/src/payload/collections/FlipbookSearchBlocks.ts`
+- `flipbook-advantage/src/payload/components/FlipbookConvertButton.tsx`
+- `flipbook-advantage/src/payload/components/FlipbookEmbedLink.tsx`
+- `flipbook-advantage/src/app/(payload)/api/flipbook-convert/route.ts`
+- `flipbook-advantage/src/app/(payload)/api/flipbook-search/route.ts`
+- `flipbook-advantage/src/payload/blocks/FlipbookSection.ts`
+- `flipbook-advantage/src/lib/flipbook/README.md`
+- `flipbook-advantage/src/lib/flipbook/cleanup.ts`
+- `flipbook-advantage/src/lib/flipbook/cover.ts`
+- `flipbook-advantage/src/lib/flipbook/index.ts`
+- `flipbook-advantage/src/lib/flipbook/payloadFlipbookConversion.ts`
+- `flipbook-advantage/src/lib/flipbook/pdfConverter.ts`
+- `flipbook-advantage/src/lib/flipbook/search.ts`
+- `flipbook-advantage/src/lib/flipbook/seriesSearch.ts`
 - `flipbook-advantage/src/lib/theme/appColorScheme.ts`
 - `flipbook-advantage/src/lib/theme/clientLogo.ts`
 - `flipbook-advantage/src/lib/theme/clientLogoVariants.ts`
@@ -129,6 +145,8 @@ _(keine)_
 - `package.json`
 - `next.config.mjs`
 - `Dockerfile`
+- `docker-compose.yml`
+- `docker-compose.dev.yml`
 - `scripts/docker-dev-app.sh`
 - `docker/dev/Dockerfile`
 - `scripts/push.sh`
@@ -192,6 +210,8 @@ _(keine)_
 - `autodeploy/multi/setup_deploy_server.sh`
 - `autodeploy/multi/test_setup_and_copy_multi-repo.sh`
 - `.env.example`
+- `.env`
+- `.env.autodeploy`
 - `src/types/payload-next-css.d.ts`
 - `.gitignore`
 - `.gitattributes`
@@ -223,11 +243,11 @@ _(keine)_
 
 | Feld | Wert |
 |---|---|
-| AppCreator Commit | `139e4b7` |
-| W1 Rule Snapshot | `unknown` |
+| AppCreator Commit | `cbd19cc` |
+| W1 Rule Snapshot | `d940983` |
 | Basis Docs Source | `local generation snapshot` |
-| Basis Docs Mode | `embedded-template-fallback` |
-| Snapshot Datum | `2026-10-01 13:59:26 UTC` |
+| Basis Docs Mode | `w1-system-local` |
+| Snapshot Datum | `2026-10-10 07:44:49 UTC` |
 | Aktive Module | `flipbook` |
 | Validator | `ok` |
 | Snippet Warnungen | `0` |
@@ -236,7 +256,7 @@ _(keine)_
 
 | Modul | Paket | Snippet-Modus | Package-Integration | Version | Lokale Quelle |
 |---|---|---|---|---|---|
-| `flipbook` | `@werk1/w1-system-flipbook` | `cloned/file` | `file: sibling package` | `2026-09-29` | `docs/contracts/flipbook-app-integration-contract.md` |
+| `flipbook` | `@werk1/w1-system-flipbook` | `cloned/file` | `file: sibling package` | `2026-10-08` | `docs/contracts/flipbook-app-integration-contract.md` |
 
 ### Package-Integration pro Modul
 
@@ -253,14 +273,6 @@ _(keine)_
 - `SYSTEM_MAP.md` aus lokalem Generation-Snapshot
 - `SYSTEM_CONTRACTS.md` aus lokalem Generation-Snapshot
 - `SYSTEM_TESTING.md` aus lokalem Generation-Snapshot
-
-### Basis-Dokument-Warnungen
-
-- ⚠️ W1_SYSTEM basis doc not found: AGENTS.md — using embedded template fallback.
-- ⚠️ W1_SYSTEM basis doc not found: SYSTEM_DOCUMENTATION.md — using embedded template fallback.
-- ⚠️ W1_SYSTEM basis doc not found: SYSTEM_MAP.md — using embedded template fallback.
-- ⚠️ W1_SYSTEM basis doc not found: SYSTEM_CONTRACTS.md — using embedded template fallback.
-- ⚠️ W1_SYSTEM basis doc not found: SYSTEM_TESTING.md — using embedded template fallback.
 
 ### Lokale Regel-/Docs-Dateien
 
@@ -318,8 +330,6 @@ _(keine)_
 - `npm install`
 - `npm run generate:importmap`
 - `npm run generate:types`
-- `npx tsc --noEmit`
-- `npm run build`
 
 ---
 

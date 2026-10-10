@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import { promises as fs } from 'fs'
 import path from 'path'
 import type { Payload } from 'payload'
@@ -17,6 +18,7 @@ import {
   extractStyleLayout,
   extractTextLayout,
   FLIPBOOK_PAGE_TIMEOUT_MS,
+  FLIPBOOK_RENDER_CONCURRENCY,
   FlipbookConversionError,
   isPdfToolingAvailable,
   probePdf,
@@ -25,7 +27,9 @@ import {
   renderPage,
   sha256File,
   toUserMessage,
+  type RenderedPage,
 } from './pdfConverter'
+import { buildManifest, chunkPdf, extractPdfData } from '@werk1/w1-system-flipbook/pdf/server'
 
 /**
  * Payload orchestration for the flipbook conversion pipeline.
@@ -51,7 +55,9 @@ type FlipbookDoc = {
   status?: unknown
   publishedRevision?: unknown
   publishedSourcePdf?: unknown
-  pages?: Array<{ image?: unknown }> | null
+  pages?: Array<{ image?: unknown; label?: unknown }> | null
+  textModel?: unknown
+  manifestUrl?: unknown
   cover?: unknown
 }
 
@@ -87,6 +93,38 @@ export const defaultFlipbookConverter: FlipbookConverter = {
   renderPage,
   extractTextLayout,
   extractStyleLayout,
+}
+
+const hasTextModel = (model: unknown): boolean =>
+  Boolean(model && typeof model === 'object' && Array.isArray((model as { pages?: unknown }).pages) && (model as { pages: unknown[] }).pages.length > 0)
+
+/**
+ * Text artifact of a revision (pdfedit/search): one bbox-layout extraction for
+ * the whole document, styled when the style extraction works. A failure must
+ * not break the flipbook conversion — it logs and returns `null`, and the next
+ * conversion can fill the model in.
+ */
+async function extractTextModel(
+  payload: Payload,
+  flipbookId: IdLike,
+  converter: FlipbookConverter,
+  filePath: string,
+  revision: string,
+): Promise<unknown> {
+  let textModel: unknown = null
+  try {
+    textModel = parseBboxLayout(await converter.extractTextLayout(filePath), { revision })
+  } catch (error) {
+    payload.logger.warn(`flipbook: text extraction for ${flipbookId} failed: ${String(error)}`)
+  }
+  if (textModel && converter.extractStyleLayout) {
+    try {
+      textModel = applyTextStyles(textModel as ReturnType<typeof parseBboxLayout>, await converter.extractStyleLayout(filePath))
+    } catch (error) {
+      payload.logger.warn(`flipbook: style extraction for ${flipbookId} failed: ${String(error)}`)
+    }
+  }
+  return textModel
 }
 
 export type FlipbookConversionOutcome =
@@ -182,6 +220,66 @@ const loadFlipbookForJob = async (
   return { doc, sourceMatches: false }
 }
 
+function sha256Buffer(buf: Buffer): string {
+  return createHash('sha256').update(buf).digest('hex')
+}
+
+/**
+ * Writes `data` to `jobDir/${filename}` and uploads it to the media collection
+ * as a non-image artifact (chunk PDF or manifest JSON). Returns the media doc
+ * id and the public URL (taken from the created doc's `url` field).
+ */
+async function createArtifactMedia(
+  payload: Payload,
+  params: {
+    flipbookId: IdLike
+    revision: string
+    filename: string
+    data: Buffer
+  },
+): Promise<{ id: IdLike; url: string }> {
+  // The file is passed with an explicit mimetype: Payload sniffs it from
+  // content (`file-type`), which does not recognise JSON text, so a `filePath`
+  // upload of the manifest would fail the collection's MIME validation.
+  const mimetype = params.filename.endsWith('.json') ? 'application/json' : 'application/pdf'
+  const created = (await payload.create({
+    collection: 'media',
+    data: {
+      generatedBy: FLIPBOOK_GENERATOR,
+      generatedFor: String(params.flipbookId),
+      generatedRevision: params.revision,
+    } as never,
+    file: { data: params.data, mimetype, name: params.filename, size: params.data.byteLength },
+    overrideAccess: true,
+  })) as MediaDoc & { url?: unknown }
+
+  const url =
+    typeof created.url === 'string' && created.url
+      ? created.url
+      : `/api/media/file/${String(created.filename ?? params.filename)}`
+
+  return { id: created.id, url }
+}
+
+/** Flipbook title per locale (page alt texts), read once per conversion job. */
+async function loadTitles(payload: Payload, flipbookId: IdLike): Promise<Map<string, string>> {
+  const titles = new Map<string, string>()
+  for (const locale of readLocales(payload).locales) {
+    const doc = (await payload
+      .findByID({
+        collection: 'flipbooks' as never,
+        id: flipbookId,
+        depth: 0,
+        locale: locale as never,
+        overrideAccess: true,
+        select: { title: true } as never,
+      })
+      .catch(() => null)) as { title?: unknown } | null
+    titles.set(locale, typeof doc?.title === 'string' && doc.title ? doc.title : String(flipbookId))
+  }
+  return titles
+}
+
 async function createPageMedia(
   payload: Payload,
   params: {
@@ -191,6 +289,7 @@ async function createPageMedia(
     pageNumber: number
     filePath: string
     jobDir: string
+    titles: Map<string, string>
   },
 ): Promise<IdLike> {
   const { defaultLocale, locales } = readLocales(payload)
@@ -198,17 +297,12 @@ async function createPageMedia(
   const target = path.join(params.jobDir, filename)
   await fs.rename(params.filePath, target)
 
-  const titleFor = async (locale: string): Promise<string> => {
-    const doc = (await payload
-      .findByID({ collection: 'flipbooks' as never, id: params.flipbookId, depth: 0, locale: locale as never, overrideAccess: true })
-      .catch(() => null)) as { title?: unknown } | null
-    return typeof doc?.title === 'string' && doc.title ? doc.title : String(params.flipbookId)
-  }
+  const titleFor = (locale: string): string => params.titles.get(locale) ?? String(params.flipbookId)
 
   const created = (await payload.create({
     collection: 'media',
     data: {
-      alt: buildPageAlt(defaultLocale, params.pageNumber, await titleFor(defaultLocale)),
+      alt: buildPageAlt(defaultLocale, params.pageNumber, titleFor(defaultLocale)),
       generatedBy: FLIPBOOK_GENERATOR,
       generatedFor: String(params.flipbookId),
       generatedRevision: params.revision,
@@ -223,11 +317,84 @@ async function createPageMedia(
       collection: 'media',
       id: created.id,
       locale: locale as never,
-      data: { alt: buildPageAlt(locale, params.pageNumber, await titleFor(locale)) } as never,
+      data: { alt: buildPageAlt(locale, params.pageNumber, titleFor(locale)) } as never,
       overrideAccess: true,
     })
   }
   return created.id
+}
+
+/**
+ * Builds and uploads the PDF manifest (page geometry, text/link/outline
+ * capabilities, page-group chunks) for a published revision. Non-fatal: page
+ * images work without it, so a failure is logged and returns null.
+ */
+async function publishManifest(
+  payload: Payload,
+  converter: FlipbookConverter,
+  params: { flipbookId: IdLike; revision: string; sha: string; sourceId: string; filePath: string; pageLabels: string[] },
+): Promise<string | null> {
+  const { flipbookId, revision, sha, sourceId, filePath, pageLabels } = params
+  const createdArtifactIds: IdLike[] = []
+  try {
+    const extracted = await extractPdfData(filePath)
+    const chunkResult = await chunkPdf(filePath, extracted.pageCount)
+
+    // Upload chunk files
+    const chunkUrls: string[] = []
+    const chunkSha256s: string[] = []
+    for (const chunk of chunkResult.chunks) {
+      const chunkFilename = `fb-${String(flipbookId)}-${sha.slice(0, 8)}-chunk-${chunk.startPage}-${chunk.endPage}.pdf`
+      const chunkSha = sha256Buffer(chunk.data)
+      const artifact = await createArtifactMedia(payload, {
+        flipbookId,
+        revision,
+        filename: chunkFilename,
+        data: chunk.data,
+      })
+      createdArtifactIds.push(artifact.id)
+      chunkUrls.push(artifact.url)
+      chunkSha256s.push(chunkSha)
+    }
+
+    // Determine source PDF public URL (best-effort)
+    const sourcePdfDoc = (await payload
+      .findByID({ collection: 'media', id: sourceId, depth: 0, overrideAccess: true })
+      .catch(() => null)) as (MediaDoc & { url?: unknown }) | null
+    const sourceUrl =
+      typeof sourcePdfDoc?.url === 'string' && sourcePdfDoc.url
+        ? sourcePdfDoc.url
+        : `/api/media/file/${String(sourcePdfDoc?.filename ?? '')}`
+
+    const manifest = buildManifest({
+      publicationId: String(flipbookId),
+      revision,
+      sourceSha256: sha,
+      sourceUrl,
+      extracted,
+      chunkResult,
+      chunkUrls,
+      chunkSha256s,
+      pageLabels,
+    })
+
+    const manifestJson = Buffer.from(JSON.stringify(manifest))
+    const manifestFilename = `fb-${String(flipbookId)}-${sha.slice(0, 8)}-manifest.json`
+    const manifestArtifact = await createArtifactMedia(payload, {
+      flipbookId,
+      revision,
+      filename: manifestFilename,
+      data: manifestJson,
+    })
+    createdArtifactIds.push(manifestArtifact.id)
+    return manifestArtifact.url
+  } catch (extractionError) {
+    payload.logger.warn(
+      `flipbook: manifest/extraction for ${String(flipbookId)} failed (non-fatal): ${extractionError instanceof Error ? (extractionError.stack ?? extractionError.message) : String(extractionError)}`,
+    )
+    await deleteMediaByIds(payload, createdArtifactIds).catch(() => undefined)
+    return null
+  }
 }
 
 export async function runFlipbookConversion(
@@ -246,6 +413,8 @@ export async function runFlipbookConversion(
 
   const createdPageIds: IdLike[] = []
   let jobDir: string | null = null
+  /** Page renders started ahead and not yet consumed, by 1-based page number. */
+  const renders = new Map<number, Promise<RenderedPage>>()
 
   try {
     if (!(await converter.isToolingAvailable())) throw new FlipbookConversionError('unavailable')
@@ -262,6 +431,33 @@ export async function runFlipbookConversion(
     if (flipbook.publishedRevision === revision && relationId(flipbook.publishedSourcePdf) === sourceId) {
       if (flipbook.status !== 'ready') {
         await updateFlipbook(payload, flipbookId, { status: 'ready', progress: null, errorMessage: null, sourceRevision: revision, sourceStamp: stamp })
+      }
+      // Converted before text extraction existed (or the extraction failed):
+      // a restart fills in the text model of the published revision without
+      // touching its pages — search and the pdfedit editor depend on it.
+      if (!hasTextModel(flipbook.textModel)) {
+        const textModel = await extractTextModel(payload, flipbookId, converter, filePath, revision)
+        if (textModel) await updateFlipbook(payload, flipbookId, { textModel })
+      }
+      // Converted before the PDF manifest existed (or its build failed): a
+      // restart adds it to the published revision, again without touching pages.
+      if (typeof flipbook.manifestUrl !== 'string' || !flipbook.manifestUrl) {
+        // Show the run in the admin (status line, button polling), then restore.
+        const pageTotal = (flipbook.pages ?? []).length
+        await updateFlipbook(payload, flipbookId, { status: 'converting', progress: 'Extrahiere PDF-Daten …' })
+        const manifestUrl = await publishManifest(payload, converter, {
+          flipbookId,
+          revision,
+          sha,
+          sourceId,
+          filePath,
+          pageLabels: (flipbook.pages ?? []).map((p) => (typeof p.label === 'string' ? p.label : '')),
+        })
+        await updateFlipbook(payload, flipbookId, {
+          status: 'ready',
+          progress: pageTotal > 0 ? `${pageTotal}/${pageTotal}` : null,
+          ...(manifestUrl ? { manifestUrl } : {}),
+        })
       }
       return 'already-published'
     }
@@ -280,12 +476,28 @@ export async function runFlipbookConversion(
     // pdftoppm call is additionally capped by the per-page timeout.
     const deadline = Date.now() + (options.pageTimeoutMs ?? FLIPBOOK_PAGE_TIMEOUT_MS) * probe.pageCount
     jobDir = await converter.createJobDir()
+    const renderDir = jobDir
     const pages: Array<{ image: IdLike; width: number; height: number }> = []
     const progressEvery = Math.max(1, Math.ceil(probe.pageCount / 20))
+    const titles = await loadTitles(payload, flipbookId)
+
+    // Pages render ahead in parallel (FLIPBOOK_RENDER_CONCURRENCY pdftoppm
+    // processes); media docs are still created strictly in page order.
+    let nextRender = 1
+    const fillRenders = (pageNumber: number) => {
+      while (nextRender <= probe.pageCount && nextRender < pageNumber + FLIPBOOK_RENDER_CONCURRENCY) {
+        const rendering = converter.renderPage(filePath, nextRender, renderDir)
+        rendering.catch(() => undefined)
+        renders.set(nextRender, rendering)
+        nextRender += 1
+      }
+    }
 
     for (let pageNumber = 1; pageNumber <= probe.pageCount; pageNumber += 1) {
       if (Date.now() > deadline) throw new FlipbookConversionError('timeout', `Jobgrenze bei Seite ${pageNumber}`)
-      const rendered = await converter.renderPage(filePath, pageNumber, jobDir)
+      fillRenders(pageNumber)
+      const rendered = await renders.get(pageNumber)!
+      renders.delete(pageNumber)
       const imageId = await createPageMedia(payload, {
         flipbookId,
         revision,
@@ -293,6 +505,7 @@ export async function runFlipbookConversion(
         pageNumber,
         filePath: rendered.filePath,
         jobDir,
+        titles,
       })
       createdPageIds.push(imageId)
       pages.push({ image: imageId, width: rendered.width, height: rendered.height })
@@ -318,24 +531,18 @@ export async function runFlipbookConversion(
       return 'superseded'
     }
 
-    // Text artifact of the published revision (pdfedit/searchable PDF):
-    // one bbox-layout extraction for the whole document. A failure must not
-    // break the flipbook conversion — the pages are published without a
-    // text model and the next conversion can fill it in.
-    let textModel: unknown = null
-    try {
-      const textXml = await converter.extractTextLayout(filePath)
-      textModel = parseBboxLayout(textXml, { revision })
-    } catch (error) {
-      payload.logger.warn(`flipbook: text extraction for ${flipbookId} failed: ${String(error)}`)
-    }
-    if (textModel && converter.extractStyleLayout) {
-      try {
-        textModel = applyTextStyles(textModel as ReturnType<typeof parseBboxLayout>, await converter.extractStyleLayout(filePath))
-      } catch (error) {
-        payload.logger.warn(`flipbook: style extraction for ${flipbookId} failed: ${String(error)}`)
-      }
-    }
+    const textModel = await extractTextModel(payload, flipbookId, converter, filePath, revision)
+
+    // PDF manifest + chunks (non-fatal): see publishManifest.
+    await updateFlipbook(payload, flipbookId, { progress: 'Extrahiere PDF-Daten …' })
+    const manifestUrl = await publishManifest(payload, converter, {
+      flipbookId,
+      revision,
+      sha,
+      sourceId,
+      filePath,
+      pageLabels: (pages as Array<{ label?: unknown }>).map((p) => (typeof p.label === 'string' ? p.label : '')),
+    })
 
     const previousRevision = typeof current.publishedRevision === 'string' ? current.publishedRevision : null
     await updateFlipbook(payload, flipbookId, {
@@ -348,6 +555,7 @@ export async function runFlipbookConversion(
       status: 'ready',
       progress: `${pages.length}/${pages.length}`,
       errorMessage: null,
+      ...(manifestUrl !== null ? { manifestUrl } : {}),
     })
     if (previousRevision && previousRevision !== revision) {
       await markRevisionReleased(payload, flipbookId, previousRevision).catch((error) => {
@@ -365,6 +573,8 @@ export async function runFlipbookConversion(
     await updateFlipbook(payload, flipbookId, { status: 'error', progress: null, errorMessage: message }).catch(() => undefined)
     return 'failed'
   } finally {
+    // Renders started ahead of a failure still write into the job dir.
+    await Promise.allSettled(renders.values())
     if (jobDir) await converter.removeJobDir(jobDir).catch(() => undefined)
   }
 }

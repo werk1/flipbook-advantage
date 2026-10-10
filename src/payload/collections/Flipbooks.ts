@@ -158,6 +158,18 @@ export const Flipbooks: CollectionConfig = {
       localized: true,
     },
     {
+      name: "series",
+      label: { de: "Serie", en: "Series" },
+      type: "relationship",
+      relationTo: "flipbook-series",
+      admin: {
+        description: {
+          de: "Ordnet die Ausgabe einer Serie zu. Die Suche im Reader kann dann alle Ausgaben dieser Serie durchsuchen.",
+          en: "Assigns the issue to a series. The reader search can then look through all issues of that series.",
+        },
+      },
+    },
+    {
       name: "issue",
       label: { de: "Ausgabe", en: "Issue" },
       type: "text",
@@ -242,6 +254,13 @@ export const Flipbooks: CollectionConfig = {
       admin: { readOnly: true, position: "sidebar", description: "PDF der veröffentlichten Revision." },
     },
     { name: "publishedRevision", type: "text", admin: { readOnly: true, position: "sidebar" } },
+    {
+      // PDF.js manifest (text layer, links, chunks) of the published revision, built by the conversion.
+      name: "manifestUrl",
+      type: "text",
+      admin: { readOnly: true, position: "sidebar" },
+      access: { update: () => false },
+    },
     { name: "pageCount", type: "number", admin: { readOnly: true, position: "sidebar" } },
     {
       // Published replacements of single pages (e.g. written by the pdfedit
@@ -276,6 +295,14 @@ export const Flipbooks: CollectionConfig = {
     },
     { name: "overrideSource", type: "text", admin: { readOnly: true, position: "sidebar", description: "Quelle der aktualisierten Seiten (Pdfedit-ID)." } },
     {
+      // PDF.js manifest (text layer, links) of `pdfOverride`, published by the same module.
+      // The reader uses it only while `overrideManifestFor` names the current `pdfOverride`.
+      name: "overrideManifestUrl",
+      type: "text",
+      admin: { readOnly: true, position: "sidebar", description: "Manifest (Textebene, Links) des aktualisierten PDFs." },
+    },
+    { name: "overrideManifestFor", type: "text", admin: { readOnly: true, hidden: true } },
+    {
       name: "textModel",
       type: "json",
       // The text model (blocks, lines, words, styles) easily exceeds 1 MB. The
@@ -292,6 +319,23 @@ export const Flipbooks: CollectionConfig = {
         hidden: true,
         description:
           "Extrahierte Textebene (W1FormTextModel) der veröffentlichten Revision – Grundlage für Pdfedit-Overlay und Suche.",
+      },
+    },
+    {
+      name: "imageModel",
+      type: "json",
+      // Same reasoning as `textModel`: server-only, never exposed through the
+      // admin form or REST. Filled lazily per revision by the pdfedit endpoints.
+      access: {
+        read: () => false,
+        update: () => false,
+        create: () => false,
+      },
+      admin: {
+        readOnly: true,
+        hidden: true,
+        description:
+          "Extrahierte Bildplatzierungen (W1PdfImageModel) der veröffentlichten Revision – Grundlage für den Pdfedit-Bildeditor.",
       },
     },
     {

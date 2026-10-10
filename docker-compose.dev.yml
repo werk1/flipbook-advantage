@@ -1,7 +1,9 @@
 services:
   mongo:
     image: mongo:7
-
+    # Single-node replica set: App Font publication (and other Payload
+    # transactions) need a transactional connection.
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "127.0.0.1:${MONGO_PORT:-27018}:27017"
     volumes:
@@ -9,7 +11,7 @@ services:
     networks:
       - flipbook-advantage-network
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      test: ["CMD-SHELL", "mongosh --quiet --eval \"try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }).ok }\""]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -40,7 +42,7 @@ services:
       - .env
     environment:
       NODE_ENV: development
-      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/flipbook-advantage}
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/flipbook-advantage?replicaSet=rs0&directConnection=true}
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-dev-secret-change-me}
       PAYLOAD_CONFIG_PATH: src/payload.config.ts
       APP_FONTS_GOOGLE_API_KEY: ${APP_FONTS_GOOGLE_API_KEY:-}

@@ -55,6 +55,12 @@
   --w1-flipbook-paper: var(--flipbook-app-paper);
   --w1-flipbook-thumb-active: var(--flipbook-app-secondary);
   --w1-flipbook-gutter-shade: var(--flipbook-app-gutter-shade);
+  /* Page marks: optional scheme tokens. A scheme that leaves one empty
+     declares nothing, the reference stays unresolved and the viewer falls
+     back to its standard colour (yellow, orange, link blue). */
+  --w1-flipbook-search-highlight: var(--flipbook-app-search-highlight);
+  --w1-flipbook-search-highlight-current: var(--flipbook-app-search-highlight-current);
+  --w1-flipbook-link-highlight: var(--flipbook-app-link-highlight);
 }
 
 body {

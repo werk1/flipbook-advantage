@@ -1,0 +1,46 @@
+/*
+ * Widget tokens from the app palette for the widgets in the reader
+ * (navigation widget, search panel). The widget areas run with
+ * theme="light"; light and dark come from the palette (theme/palettes.css).
+ * Three classes outrank the widget theme rules (:where defaults and the
+ * data-widget-theme rules).
+ */
+.theme.theme.theme {
+  --w1-widget-primary: var(--flipbook-app-primary, #34322e);
+  --w1-widget-primary-strong: var(--flipbook-app-primary-strong, #1f1e1c);
+  --w1-widget-primary-text: var(--flipbook-app-primary-text, #ffffff);
+  --w1-widget-primary-soft: var(--flipbook-app-secondary-soft, rgba(52, 50, 46, 0.12));
+  --w1-widget-focus: var(--flipbook-app-focus, rgba(31, 111, 235, 0.3));
+  --w1-widget-foreground: var(--flipbook-app-text, #1f1e1c);
+  --w1-widget-muted: var(--flipbook-app-muted, #6b675f);
+  --w1-widget-border: var(--flipbook-app-panel-border, rgba(45, 57, 78, 0.1));
+  /*
+   * Shadows, all from the palette's shadow colour and in two layers: a tight
+   * contact shadow at the edge and a short soft one below. Kept small, so a
+   * surface lifts off without casting a halo onto its neighbours.
+   * - float: surfaces over the pages (navigation widget, search sheet).
+   * - popover: lists that open above them (page popup); a little higher.
+   * - raised: white surfaces inside a frame (search field, hit arrows, page
+   *   field). They carry this instead of a hairline: line or shadow, never
+   *   both. Surfaces standing alone keep their hairline and no shadow.
+   */
+  --flipbook-shadow-float:
+    0 1px 2px color-mix(in srgb, var(--flipbook-app-panel-shadow, rgba(36, 53, 91, 0.1)) 60%, transparent),
+    0 4px 12px color-mix(in srgb, var(--flipbook-app-panel-shadow, rgba(36, 53, 91, 0.1)) 60%, transparent);
+  --flipbook-shadow-popover:
+    0 2px 6px color-mix(in srgb, var(--flipbook-app-panel-shadow, rgba(36, 53, 91, 0.1)) 60%, transparent),
+    0 10px 24px color-mix(in srgb, var(--flipbook-app-panel-shadow, rgba(36, 53, 91, 0.1)) 80%, transparent);
+  --flipbook-shadow-raised:
+    0 0 1px color-mix(in srgb, var(--flipbook-app-panel-shadow, rgba(36, 53, 91, 0.1)) 70%, transparent),
+    0 1px 2px color-mix(in srgb, var(--flipbook-app-panel-shadow, rgba(36, 53, 91, 0.1)) 70%, transparent);
+  --w1-widget-shadow: var(--flipbook-shadow-float);
+  --w1-widget-search-gradient: var(--flipbook-app-panel-gradient);
+  --w1-widget-search-bg: var(--flipbook-app-field-bg, rgba(255, 255, 255, 0.72));
+  --w1-widget-search-border: var(--flipbook-app-field-border, rgba(45, 57, 78, 0.28));
+  --w1-widget-control-bg: var(--flipbook-app-field-bg, rgba(255, 255, 255, 0.62));
+  --w1-widget-control-border: var(--flipbook-app-field-border, rgba(45, 57, 78, 0.19));
+  --w1-widget-result-bg: var(--flipbook-app-field-bg, rgba(255, 255, 255, 0.58));
+  --w1-widget-result-frame-border: var(--flipbook-app-field-border, rgba(45, 57, 78, 0.16));
+  /* Native controls (caret, placeholder) follow the palette mode. */
+  color-scheme: light dark;
+}

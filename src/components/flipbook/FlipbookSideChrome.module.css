@@ -1,7 +1,7 @@
 /*
- * Phone-landscape start column: pictogram on top, icon buttons at the bottom
- * and the page counter as a fraction below them. Width is a device token (--flipbook-side-bar-width,
- * set in the PL section of FlipbookReader.module.css).
+ * Phone- and tablet-landscape start column: icon buttons at the bottom and the
+ * page counter as a fraction below them. Width is a device token (--flipbook-side-bar-width,
+ * set in the PL/TL section of FlipbookReader.module.css).
  */
 .sideChrome {
   display: flex;
@@ -17,43 +17,6 @@
   box-sizing: border-box;
   background: var(--w1-flipbook-toolbar, #ffffff);
   border-right: 1px solid var(--w1-flipbook-border, #b9b5ad);
-}
-
-/* Reserved square for the client pictogram. */
-.pictogram {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: var(--flipbook-pictogram-size, 44px);
-  height: var(--flipbook-pictogram-size, 44px);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--w1-flipbook-text, #1c1b1a);
-}
-
-.pictogram picture {
-  display: contents;
-}
-
-.pictogram :is(img, svg) {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Stand-in until a pictogram is set: the initial as a round badge in the
-   scheme's primary colour. */
-.initial {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--flipbook-app-primary-text, #ffffff);
-  background: var(--flipbook-app-primary, #3e4c59);
 }
 
 /* Fraction below the icons: pages, rule, page count. */
@@ -87,8 +50,27 @@
   overflow-wrap: anywhere;
 }
 
-/* Icons sit at the bottom of the bar. */
+/* Icons sit at the bottom of the bar. Touch targets of 44px (the minimum
+   Apple asks for) with slightly larger icons than the header toolbar: they
+   stand without a frame of their own. */
+.search,
 .tools {
   display: flex;
+  --flipbook-toolbar-button-size: 44px;
+  --flipbook-toolbar-icon-size: 26px;
+  /* The 44px targets sit edge to edge: the 26px icons keep 18px of air
+     between them, and all tools fit a phone held sideways (390px). */
+  --flipbook-toolbar-gap: 0px;
+}
+
+.tools {
   margin-top: auto;
+}
+
+/* The search on/off comes first, at the top, centred on the line of the
+   search field in the icon column beside it (column padding, the frame's
+   7px, half the 43px field). */
+.search {
+  flex: none;
+  margin-top: 6.5px;
 }

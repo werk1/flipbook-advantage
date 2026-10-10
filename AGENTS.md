@@ -21,14 +21,14 @@ This app is standalone editable. All mandatory rules are contained in local file
 
 ## Module Rule Snapshots
 
-- `flipbook` from cloned/file snapshot, version `2026-09-29`, package integration `file: sibling package`
+- `flipbook` from cloned/file snapshot, version `2026-10-08`, package integration `file: sibling package`
 
 ## Module Snapshot: flipbook
 
 - Package: `@werk1/w1-system-flipbook`
 - Source mode: `cloned/file`
 - Source path: local generated contract snapshot
-- Version: `2026-09-29`
+- Version: `2026-10-08`
 - Package integration: `file: sibling package`
 
 ## Required Reading

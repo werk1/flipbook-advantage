@@ -6,7 +6,7 @@
 .tools {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--flipbook-toolbar-gap, 4px);
   /* Only the icon, in the palette primary; an active toggle gets a soft
      secondary background and a secondary icon (palettes.css). */
   --w1-button-neutral-ghost-bg: transparent;
@@ -24,10 +24,11 @@
   flex-direction: column;
 }
 
-/* Same footprint and corner radius as the viewer's ‹ › buttons, no frame. */
+/* Same footprint and corner radius as the viewer's ‹ › buttons, no frame.
+   The landscape side bar raises the size (--flipbook-toolbar-button-size). */
 .tools .tool {
-  min-width: 40px;
-  min-height: 40px;
+  min-width: var(--flipbook-toolbar-button-size, 40px);
+  min-height: var(--flipbook-toolbar-button-size, 40px);
   padding: 0;
   border: 0;
   border-radius: var(--w1-flipbook-radius, 8px);

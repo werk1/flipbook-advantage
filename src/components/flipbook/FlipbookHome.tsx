@@ -3,6 +3,7 @@ import { FlipbookHeader } from '@/components/flipbook/FlipbookHeader'
 import { FlipbookReader } from '@/components/flipbook/FlipbookReader'
 import { resolveFlipbookLocale } from '@/lib/blocks/flipbook/locale'
 import { issueOf, listPublishedFlipbooks, loadPublishedFlipbook, mapFlipbookToInput } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
+import { isAdminRequest, withAdminFeatures } from '@/lib/blocks/flipbook/viewerAccess'
 import { getPayloadClient } from '@/lib/payload/getPayloadClient'
 import { getClientLogo } from '@/lib/theme/clientLogo'
 
@@ -51,7 +52,7 @@ export async function FlipbookHome({
     Boolean(candidate) && items.some((i) => i.slug === candidate)
   const slug = isListed(book) ? book : isListed(homeSlug) ? homeSlug : items[0]?.slug
   const doc = slug ? await loadPublishedFlipbook(payload, slug, locale) : null
-  const input = mapFlipbookToInput(doc)
+  const input = withAdminFeatures(mapFlipbookToInput(doc), await isAdminRequest(payload))
   const clientLogo = await getClientLogo()
 
   if (!input || !slug) {

@@ -1,14 +1,14 @@
 # Sync Status
 
-Generated at: 2026-10-01T13:59:26.034Z
+Generated at: 2026-10-10T07:44:49.971Z
 
 App: `flipbook-advantage`
 
 Rule snapshot source: `w1-system-app-creator`
-AppCreator commit: `139e4b7`
-W1 rule snapshot: `unknown`
+AppCreator commit: `cbd19cc`
+W1 rule snapshot: `d940983`
 Basis docs source: local generation snapshot
-Basis docs mode: `embedded-template-fallback`
+Basis docs mode: `w1-system-local`
 Validation Result: `ok`
 
 ## Active Modules
@@ -17,7 +17,7 @@ Validation Result: `ok`
 
 ## Module Snippets
 
-- `flipbook`: package `@werk1/w1-system-flipbook`, source `cloned/file`, integration `file: sibling package`, version `2026-09-29`, path `docs/contracts/flipbook-app-integration-contract.md`
+- `flipbook`: package `@werk1/w1-system-flipbook`, source `cloned/file`, integration `file: sibling package`, version `2026-10-08`, path `docs/contracts/flipbook-app-integration-contract.md`
 
 ## Initial Warnings
 

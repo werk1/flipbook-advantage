@@ -28,7 +28,21 @@ IDEA -> PLAN -> ROADMAP -> REPORT
 
 ## Scope Contract Rule
 
-Before non-trivial or ambiguity-prone implementation work, state a compact scope contract:
+Before non-trivial or ambiguity-prone implementation work, state a compact
+scope contract:
+
+```text
+In scope:
+Out of scope:
+Affected repositories:
+Affected contracts:
+Acceptance checks:
+```
+
+For trivial isolated edits, a one-sentence scope note is enough. Broad wording
+such as "all", "system", "standard" or "consistent" must be grounded in the
+concrete repositories, routes, exports, schemas, components or docs named by
+the task.
 
 ```text
 In scope:
@@ -42,7 +56,37 @@ For trivial isolated edits, a one-sentence scope note is enough.
 
 ## Contract Freshness Rule
 
-When a change affects a public or cross-file contract surface, update the relevant contracts and docs in the same change.
+Contracts are part of the acceptance surface. When a change affects a public or
+cross-file contract surface, update the relevant contracts and docs in the same
+change.
+
+Triggering changes include:
+
+- public export changes;
+- package subpath changes;
+- file moves or source-root layout changes;
+- Payload collection, global, field, endpoint or access changes;
+- generated-app template or dependency-catalog changes;
+- app-host integration changes;
+- schema, prop, adapter or runtime data changes;
+- behavior changes that invalidate documented assumptions.
+
+Before finishing, run a concrete freshness sweep. Search affected contracts and
+docs for old symbols, paths, package names, route names, schema keys, commands,
+UI labels and removed behavior. Use `rg` where available.
+
+Include the relevant surfaces:
+
+- `docs/contracts/`
+- `docs/packages/`
+- package-local `AGENTS.md`
+- package-local `docs/contracts/`
+- affected roadmaps, reports, tickets and bugs
+- app-host or generator docs when integration changes
+
+If a stale reference is confirmed but outside the safe scope of the current
+change, create a bug or audit item before finishing and cite it in the final
+handoff.
 
 Triggering changes include:
 
@@ -59,7 +103,20 @@ Before finishing, run a concrete freshness sweep. Search affected contracts and 
 
 ## Bug And Ticket Rules
 
-Bug files are for confirmed, evidence-backed defects. New active bug files must include a concrete fix-direction section with ownership, affected surfaces, scope, non-goals, acceptance checks and verification.
+Bug files are for confirmed, evidence-backed defects. Do not use bug docs for
+unverified hypotheses. New active bug files must include a concrete
+`Fix-Vorschlag` section with ownership, likely affected surfaces, scope,
+non-goals, acceptance checks and verification. If the fix direction cannot be
+made credible yet, record the investigation blocker instead of writing a generic
+placeholder.
+
+Ticket files are for non-defect work requests: feature requests, findings that
+are not confirmed defects, UI/UX polish, optimizations, small add-ons,
+integration requests and docs work. New tickets must include
+`Pruefung / Umsetzungsnotiz` unless they explicitly state that no code path was
+inspected because the ticket is a pure product request.
+
+Do not collect unrelated bugs or tickets in one growing checklist.
 
 Ticket files are for non-defect work requests: feature requests, findings that are not confirmed defects, UI/UX polish, optimizations, integration requests and docs work.
 
@@ -67,7 +124,38 @@ Do not collect unrelated bugs or tickets in one growing checklist.
 
 ## Naming Rules
 
+Use uppercase snake-case theme tokens and keep the token stable across related
+docs.
+
+Roadmap packages:
+
 ```text
+docs/roadmaps/<active|future|done>/<THEME>/
+  ROADMAP_<THEME>.md
+  ROADMAP_<THEME>_SUMMARY_DE.md
+```
+
+Reports:
+
+```text
+docs/reports/implementation/REPORT_<THEME>_IMPLEMENTATION_<YYYY-MM-DD>.md
+docs/reports/technical-review/REPORT_<THEME>_TECHNICAL_REVIEW_<YYYY-MM-DD>.md
+docs/reports/review/REPORT_<THEME>_<REVIEW_KIND>_<YYYY-MM-DD>.md
+```
+
+Ideas, plans, bugs and tickets:
+
+```text
+docs/ideas/IDEA_<THEME>.md
+docs/planning/PLAN_<THEME>.md
+docs/bugs/BUG_<YYYY-MM-DD>_<SHORT_TITLE>.md
+docs/tickets/TICKET_<YYYY-MM-DD>_<SHORT_TITLE>.md
+```
+
+Keep original file names when moving documents to `done/`.
+
+Every active roadmap must include `ROADMAP_<THEME>_SUMMARY_DE.md`.
+
 docs/bugs/BUG_<YYYY-MM-DD>_<SHORT_TITLE>.md
 docs/tickets/TICKET_<YYYY-MM-DD>_<SHORT_TITLE>.md
 docs/planning/PLAN_<THEME>.md
@@ -81,15 +169,43 @@ Keep original file names when moving documents to `done/`.
 
 ## Current Truth vs History
 
-Contracts, system maps and documentation-structure documents describe the current verified rule. They must not accumulate historical change logs or superseded designs. Put history and evidence in `docs/reports/`.
+Contracts, system maps, package maps and documentation-structure documents
+describe the current verified rule. They must not collect old decisions,
+change logs, superseded designs or implementation diaries.
+
+When behavior changes:
+
+- Replace outdated statements in current docs.
+- Put implementation history and review evidence in `docs/reports/`.
+- Put active defects in `docs/bugs/`.
+- Put non-defect work requests in `docs/tickets/`.
+- Put broad planned work in `docs/roadmaps/`.
 
 ## Pre-Release Compatibility Policy
 
-Do not add legacy paths, deprecated fallbacks, migration aliases, compatibility shims or parallel versioned behavior for unreleased internal refactors. Use versioned behavior only when an explicitly owned external protocol, persisted schema or public consumer rollout is named.
+flipbook-advantage is still in internal development. Until a package, app host or
+generated-app surface has an explicit release compatibility contract, the
+current source and current contracts are the supported behavior.
+
+Do not add legacy paths, deprecated fallbacks, migration aliases, compatibility
+shims or parallel `v2`/`v3` implementations for unreleased internal refactors.
+
+Use versioned behavior only when an explicitly owned external protocol,
+persisted schema, package release, Payload migration or public consumer rollout
+is named.
+
+This rule is especially important for app hosts and generated apps: do not
+preserve old internal app shapes just because multiple app hosts or generated
+outputs exist. Document which repository owns the current behavior.
 
 ## Language Rule
 
-Contracts, reports, roadmaps and current maps are English-first. Ideas, plans, bugs and tickets may be German-first. Keep code identifiers, package names, route names, file names, commands and schema fields unchanged.
+Contracts, reports, roadmaps and current maps are English-first unless a
+repo-local system defines a narrower rule.
+
+Ideas, planning documents, bugs and tickets may be German-first for W1 team
+execution. Keep code identifiers, package names, route names, file names,
+commands, schema fields and quoted source text unchanged.
 
 ## Standalone Rule
 

@@ -8,7 +8,19 @@ This document defines the verification policy for `flipbook-advantage`.
 
 ## App-Host Verification
 
-Use the smallest set that matches the change:
+Run inside the target app host:
+
+```bash
+npm run generate:types
+npm run generate:importmap
+npm run lint
+npm run test:int
+npm run test:e2e
+npm run build
+```
+
+If the host has different scripts, record the exact commands used in the
+ticket, review or report.
 
 ```bash
 npm run generate:importmap
@@ -35,7 +47,13 @@ Run module-specific checks when the module's routes, Payload collections, env va
 
 ## Documentation-Only Changes
 
-1. Verify paths and links by inspection.
+For documentation-only changes:
+
+1. Verify paths and links by inspection or available link tooling.
+2. Check that local and local file links are both correct when a repo can
+   be opened standalone.
+3. Do not run app builds unless the docs also change build/test behavior.
+
 2. Run `git diff --check` to confirm no whitespace errors.
 3. Do not run app builds unless the docs also change build/test behavior.
 
@@ -45,7 +63,13 @@ App-host verification does not replace package-level checks. When a defect is pa
 
 ## Testing Layers
 
-| Layer | Use | Scope |
+| Layer | Primary use | Scope |
+| --- | --- | --- |
+| Package-local checks | Fast iteration inside one reusable package | One `w1-system-*` repo |
+| App-host checks | Next.js/Payload integration and generated types | `w1-system-core-v2`, generated apps, `w1-system-ticketing-app` (ticketing system app) |
+| App scripts | Broad maintenance, package build or health checks | App root |
+| Docker app checks | Runtime integration, Payload, database and deployment-like behavior | App hosts |
+
 |---|---|---|
 | Type check + build | Fast app-host verification | This app |
 | Docker app checks | Runtime, Payload, database, deployment-like | This app |

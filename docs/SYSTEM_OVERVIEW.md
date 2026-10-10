@@ -27,4 +27,4 @@ Packages must not import app-host internals. The app may import package public e
 
 ## Module Rule Snapshots
 
-- `flipbook` from cloned/file snapshot, version `2026-09-29`, package integration `file: sibling package`
+- `flipbook` from cloned/file snapshot, version `2026-10-08`, package integration `file: sibling package`

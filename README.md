@@ -155,7 +155,8 @@ serverseitig in Seitenbilder konvertiert (`pdfinfo`/`pdftoppm`, lange Kante
 - Grenzen: 500 MB und 300 Seiten pro PDF. Das Upload-Limit des Reverse-Proxy
   muss mindestens 500 MB erlauben.
 - Aufbewahrung ersetzter Seiten: `W1_FLIPBOOK_RETENTION_HOURS` (24, ab dem
-  Ersetzen); Seitenbilder `fb-*` werden 1 h gecacht (`next.config.mjs`).
+  Ersetzen); erzeugte Dateien `fb-*` (Seitenbilder, Chunks, Manifest) werden
+  12 h gecacht (`next.config.mjs`).
 - Vertrag: `docs/contracts/flipbook-app-integration-contract.md`.
 
 ---
@@ -285,6 +286,7 @@ flipbook-advantage/
 ├── docker-compose.dev.yml    Lokaler Dev-Stack (Mongo + App)
 ├── Dockerfile                App-Image fuer Prod
 ├── .env.example              Template fuer lokale .env
+├── .env                      Lokale Dev-Konfiguration (wird einmalig aus .env.example erzeugt, nicht eingecheckt)
 ├── .env.autodeploy           Build-/Deploy-Konfiguration (NICHT einchecken)
 ├── package.json
 └── W1_GENERATION_REPORT.md   vom Creator erzeugt – Modul-Uebersicht

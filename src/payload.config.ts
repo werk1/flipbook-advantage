@@ -9,7 +9,7 @@ import path from 'path'
 import { buildConfig, type CollectionConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
-import { Users, Media, TextContent, Pages, Carousels, Flipbooks, ColorSchemes } from './payload/collections'
+import { Users, Media, TextContent, Pages, Carousels, Flipbooks, FlipbookSeries, FlipbookSearchBlocks, ColorSchemes } from './payload/collections'
 import { SiteSettings } from './payload/globals'
 import { TextWrapFeature } from '@/payload/lexical/text-wrap/feature.server'
 import { resetInterruptedFlipbookJobs } from '@/lib/flipbook'
@@ -215,7 +215,7 @@ export default buildConfig({
     },
   },
 
-  collections: [Users, Media, TextContent, Pages, Carousels, Flipbooks, ColorSchemes, AppFontAssets, AppFontFamilies, AppFontSnapshots],
+  collections: [Users, Media, TextContent, Pages, Carousels, Flipbooks, FlipbookSeries, FlipbookSearchBlocks, ColorSchemes, AppFontAssets, AppFontFamilies, AppFontSnapshots],
   globals: [SiteSettings, AppFontSettings],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

@@ -2,15 +2,17 @@ import ClientLayout from '@/components/client-layout/ClientLayout'
 import { FlipbookReader } from '@/components/flipbook/FlipbookReader'
 import { resolveFlipbookLocale } from '@/lib/blocks/flipbook/locale'
 import { coverUrlOf, issueOf, loadPublishedFlipbook, mapFlipbookToInput } from '@/lib/blocks/flipbook/resolveFlipbookBlockInput'
+import { isAdminRequest, withAdminFeatures } from '@/lib/blocks/flipbook/viewerAccess'
 import { getClientLogo } from '@/lib/theme/clientLogo'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 
 type FlipbookReaderPageProps = {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ locale?: string; page?: string }>
+  searchParams: Promise<{ locale?: string; page?: string; q?: string }>
 }
 
 export const dynamic = 'force-dynamic'
@@ -21,11 +23,12 @@ function baseUrl(): string {
   return raw.endsWith('/') ? raw.slice(0, -1) : raw
 }
 
-async function loadFlipbook(slug: string, locale: string) {
+/** Once per request: metadata and page share the lookup. */
+const loadFlipbook = cache(async (slug: string, locale: string) => {
   const payload = await getPayload({ config: configPromise })
   const doc = await loadPublishedFlipbook(payload, slug, locale)
-  return { doc, input: mapFlipbookToInput(doc) }
-}
+  return { doc, input: withAdminFeatures(mapFlipbookToInput(doc), await isAdminRequest(payload)) }
+})
 
 export async function generateMetadata({ params, searchParams }: FlipbookReaderPageProps): Promise<Metadata> {
   const { slug } = await params
@@ -47,9 +50,7 @@ export default async function FlipbookReaderPage({ params, searchParams }: Flipb
   const { slug } = await params
   const query = await searchParams
   const locale = resolveFlipbookLocale(query.locale)
-  const payload = await getPayload({ config: configPromise })
-  const doc = await loadPublishedFlipbook(payload, slug, locale)
-  const input = mapFlipbookToInput(doc)
+  const { doc, input } = await loadFlipbook(slug, locale)
   if (!input) notFound()
   const clientLogo = await getClientLogo()
 
@@ -69,6 +70,7 @@ export default async function FlipbookReaderPage({ params, searchParams }: Flipb
         siteTitle={input.title}
         issue={issueOf(doc)}
         clientLogo={clientLogo}
+        initialSearchQuery={typeof query.q === 'string' ? query.q.slice(0, 100) : undefined}
       />
     </ClientLayout>
   )

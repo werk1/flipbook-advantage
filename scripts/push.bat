@@ -71,7 +71,7 @@ IF %ERRORS% GTR 0 (
 IF "%BUILD_SSH_PORT%"==""  SET BUILD_SSH_PORT=22
 IF "%BUILD_SSH_DIR%"==""   SET BUILD_SSH_DIR=flipbook-advantage
 IF "%DEPLOY_SSH_PORT%"=="" SET DEPLOY_SSH_PORT=22
-IF "%DEPLOY_SSH_DIR%"==""  SET DEPLOY_SSH_DIR=flipbook-system
+IF "%DEPLOY_SSH_DIR%"==""  SET DEPLOY_SSH_DIR=flipbook-advantage
 
 REM ── BUILD_SSH_PASSWORD: interaktiv abfragen wenn auf Default ────────────────
 IF "%BUILD_SSH_PASSWORD%"=="DEIN_BUILD_PASSWORT" (

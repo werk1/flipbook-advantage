@@ -110,7 +110,7 @@ check_default "BUILD_SSH_PASSWORD"    "$BUILD_SSH_PASSWORD"    "DEIN_BUILD_PASSW
 BUILD_SSH_PORT="${BUILD_SSH_PORT:-22}"
 BUILD_SSH_DIR="${BUILD_SSH_DIR:-flipbook-advantage}"
 DEPLOY_SSH_PORT="${DEPLOY_SSH_PORT:-22}"
-DEPLOY_SSH_DIR="${DEPLOY_SSH_DIR:-flipbook-system}"
+DEPLOY_SSH_DIR="${DEPLOY_SSH_DIR:-flipbook-advantage}"
 
 if [ "$ERRORS" -gt 0 ]; then
   echo "" >&2

@@ -20,10 +20,36 @@ export const COLOR_SCHEME_TOKENS = [
   { key: 'panelGradient', label: 'Panel-Verlauf', hint: 'CSS-Gradient des Navigations-Panels' },
   { key: 'panelBorder', label: 'Panel-Rahmen', hint: '' },
   { key: 'panelShadow', label: 'Panel-Schatten', hint: 'Farbe des Schattens' },
+  // Optional: empty keeps the viewer's standard colour; dark takes the light
+  // value when it is empty. Values with transparency, e.g. rgb(30 110 255 / 28%).
+  {
+    key: 'searchHighlight',
+    label: 'Suchtreffer',
+    hint: 'Tönung der Treffer auf der Seite, leer = Gelb (Standard)',
+    optional: true,
+  },
+  {
+    key: 'searchHighlightCurrent',
+    label: 'Suchtreffer aktiv',
+    hint: 'Tönung des gewählten Treffers, leer = Orange (Standard)',
+    optional: true,
+  },
+  {
+    key: 'linkHighlight',
+    label: 'Links',
+    hint: 'Tönung der Links bei „Links zeigen“, leer = Linkblau (Standard)',
+    optional: true,
+  },
 ] as const
 
-export type ColorSchemeTokenKey = (typeof COLOR_SCHEME_TOKENS)[number]['key']
-export type ColorSchemeMode = Record<ColorSchemeTokenKey, string>
+type ColorSchemeToken = (typeof COLOR_SCHEME_TOKENS)[number]
+export type ColorSchemeTokenKey = ColorSchemeToken['key']
+/** Tokens a scheme may leave empty: the viewer keeps its standard colour. */
+export type OptionalColorSchemeTokenKey = Extract<ColorSchemeToken, { optional: true }>['key']
+export type ColorSchemeMode = Record<Exclude<ColorSchemeTokenKey, OptionalColorSchemeTokenKey>, string> &
+  Partial<Record<OptionalColorSchemeTokenKey, string>>
+
+export const isOptionalToken = (token: ColorSchemeToken): boolean => 'optional' in token && token.optional
 
 export interface ColorSchemeData {
   name: string
@@ -59,13 +85,22 @@ export function isSafeCssValue(value: unknown): value is string {
   const v = value.trim()
   if (v.length === 0 || v.length > 400) return false
   if (/[;{}<>\\@]|\/\*|url\s*\(|expression\s*\(/i.test(v)) return false
-  return /^[#a-z0-9\s(),.%+-]+$/i.test(v)
+  // `/` for the alpha of modern colour syntax (`rgb(30 110 255 / 28%)`);
+  // comments are refused above.
+  return /^[#a-z0-9\s(),.%+/-]+$/i.test(v)
 }
 
+/**
+ * Declarations of one mode. A required token without a valid value takes the
+ * fallback scheme's; an optional one is left out, so the viewer keeps its
+ * standard colour (and dark keeps the light value).
+ */
 function modeDeclarations(mode: Partial<ColorSchemeMode>, fallback: ColorSchemeMode): string {
-  return COLOR_SCHEME_TOKENS.map(({ key }) => {
-    const value = isSafeCssValue(mode[key]) ? mode[key] : fallback[key]
-    return `${tokenVar(key)}: ${value};`
+  return COLOR_SCHEME_TOKENS.flatMap((token) => {
+    const own = mode[token.key]
+    if (isSafeCssValue(own)) return [`${tokenVar(token.key)}: ${own};`]
+    if (isOptionalToken(token)) return []
+    return [`${tokenVar(token.key)}: ${fallback[token.key]};`]
   }).join(' ')
 }
 

@@ -2,14 +2,14 @@ services:
   mongo:
     image: mongo:7
     restart: unless-stopped
-
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     volumes:
       - ./mongo-data:/data/db
     networks:
       - flipbook-advantage-network
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
-      interval: 300s
+      test: ["CMD-SHELL", "mongosh --quiet --eval \"try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }).ok }\""]
+      interval: 5s
       timeout: 5s
       retries: 10
       start_period: 10s
@@ -24,7 +24,7 @@ services:
       - "${APP_PORT:-3601}:3000"
     environment:
       NODE_ENV: production
-      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/flipbook-advantage}
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/flipbook-advantage?replicaSet=rs0&directConnection=true}
 
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
       APP_FONTS_GOOGLE_API_KEY: ${APP_FONTS_GOOGLE_API_KEY:-}

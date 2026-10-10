@@ -1,0 +1,805 @@
+/*
+ * Reader search panel (FlipbookSearchPanel): widget search field and result
+ * list from w1-system-widgets, colours from the app palette
+ * (FlipbookWidgetTheme.module.css). Placements: desktop sidebar in the
+ * viewer's start column, sheet from the top (portrait), sheet from the right
+ * (landscape). Sheets sit in the viewer's search layer over the pages.
+ */
+
+/*
+ * Landscape: the search icon column beside the menu bar. It is a layout
+ * column of the reader, not an overlay, so the pages give it room. On top
+ * the search field, collapsed to a round magnifier, which grows out to the
+ * right over the pages; below it the hit arrows and the list toggle.
+ */
+.iconColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* 10px like all search controls (see `.barRow`). */
+  gap: 10px;
+  box-sizing: border-box;
+  --flipbook-search-press-bg: color-mix(in srgb, var(--w1-flipbook-control-text, #1c1b1a) 7%, var(--w1-flipbook-toolbar, #ffffff));
+  /* Leaves the 57px frame air on both sides. The menu bar already keeps
+     clear of the notch, so this column needs no safe-area inset of its
+     own. */
+  width: var(--flipbook-search-column-width, 70px);
+  height: 100%;
+  padding: max(10px, env(safe-area-inset-top, 0px)) 0 max(10px, env(safe-area-inset-bottom, 0px));
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  border-right: 1px solid var(--w1-flipbook-border, #b9b5ad);
+}
+
+/* Field and hit arrows in the frame of the navigation widget, upright: the
+   same 7px from its outer edge to the buttons (hairline and padding), its
+   hairline, full radius, the neutral tone of the portrait pill. Inside it
+   the white circles carry the raised shadow instead of a hairline
+   (FlipbookWidgetTheme.module.css: line or shadow, never both). */
+.columnFrame {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--flipbook-app-text, #1f1e1c) 20%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--flipbook-app-text, #1f1e1c) 5%, var(--w1-flipbook-toolbar, #ffffff));
+}
+
+.columnFrame .toolToggle.toolToggle {
+  border-color: transparent;
+  --w1-button-neutral-ghost-border: transparent;
+  --w1-button-neutral-ghost-hover-border: transparent;
+  --w1-button-neutral-ghost-active-border: transparent;
+  box-shadow: var(--flipbook-shadow-raised);
+}
+
+.columnFrame .toolToggle.toolToggle:disabled {
+  box-shadow: none;
+}
+
+.columnFrame .expandField:not(.expandFieldOpen) {
+  box-shadow: var(--flipbook-shadow-raised);
+}
+
+.columnFrame .expandField:not(.expandFieldOpen) .field.field {
+  border-color: transparent;
+}
+
+/* The list toggle stands alone below the frame (white, hairline). Switched
+   on it takes the tone of the active toggles in the menu bar next door. */
+.listToggle.listToggle[aria-pressed='true'],
+.listToggle.listToggle[aria-pressed='true']:hover {
+  --w1-button-neutral-ghost-bg: var(--w1-flipbook-control-hover, #e6e4df);
+  --w1-button-neutral-ghost-hover-bg: var(--w1-flipbook-control-hover, #e6e4df);
+  --w1-button-neutral-ghost-active-bg: var(--w1-flipbook-control-hover, #e6e4df);
+  --w1-button-neutral-ghost-color: var(--w1-flipbook-accent, #1c1b1a);
+  --w1-button-neutral-ghost-hover-color: var(--w1-flipbook-accent, #1c1b1a);
+  --w1-button-neutral-ghost-active-color: var(--w1-flipbook-accent, #1c1b1a);
+  background: var(--w1-flipbook-control-hover, #e6e4df);
+  color: var(--w1-flipbook-accent, #1c1b1a);
+}
+
+/* Slot of the field in the frame; the field lies on it and grows out of it
+   to the right. The column sits above the stage, so the field covers the
+   pages. */
+.fieldHost {
+  position: relative;
+  flex: none;
+  width: 43px;
+  height: 43px;
+}
+
+.expandArea.expandArea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: auto;
+}
+
+/* Collapsed the field is the round magnifier, built like the buttons below
+   it (white, the field's hairline, 43px). Tapped it grows to the right to a
+   short field and then with its text up to the maximum width; it stands
+   alone over the pages, so it keeps its hairline and gets the float shadow
+   while it is open. The width comes from the panel (text measure). */
+.expandField {
+  position: relative;
+  box-sizing: border-box;
+  width: 43px;
+  max-width: min(400px, calc(100vw - 150px));
+  height: 43px;
+  border-radius: 999px;
+  transition:
+    width 220ms cubic-bezier(0.16, 0.84, 0.24, 1),
+    box-shadow 220ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expandField {
+    transition: none;
+  }
+}
+
+.expandFieldOpen {
+  box-shadow: var(--flipbook-shadow-float);
+}
+
+/* The magnifier sits exactly where the collapsed circle has its icon. */
+.expandField .field.field {
+  box-sizing: border-box;
+  width: 100%;
+  height: 43px;
+  min-height: 43px;
+  padding: 0 14px 0 8.5px;
+  gap: 10px;
+  overflow: hidden;
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  cursor: text;
+}
+
+.expandField .field > :global(.w1-widget-icon) {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  color: var(--w1-flipbook-control-text, #1c1b1a);
+}
+
+.expandField:not(.expandFieldOpen) .field.field {
+  gap: 0;
+  cursor: pointer;
+}
+
+.expandField:not(.expandFieldOpen) :global(.w1-widget-search__input) {
+  opacity: 0;
+}
+
+/* The magnifier is a button of its own, laid over the field's icon: it
+   toggles the field, while a tap on the text only places the cursor. */
+.expandToggle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  color: var(--w1-flipbook-control-text, #1c1b1a);
+  background: transparent;
+  cursor: pointer;
+}
+
+/* The toggle draws the icon itself: the magnifier while the field is closed
+   or still empty, a chevron to the left once the open field holds text. The
+   field's own magnifier keeps its place in the row but is not shown. */
+.expandField .field > :global(.w1-widget-icon) {
+  visibility: hidden;
+}
+
+.expandIconClosed,
+.expandIconOpen {
+  grid-area: 1 / 1;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+/* Doubled: the widget icon size (`.w1-widget-icon--control`, 18px) weighs
+   one class, and the production build loads it after this module. */
+.expandIconClosed.expandIconClosed {
+  width: 24px;
+  height: 24px;
+}
+
+.expandIconOpen.expandIconOpen {
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  transform: rotate(-90deg);
+}
+
+.expandFieldFilled .expandIconClosed {
+  opacity: 0;
+  transform: rotate(90deg);
+}
+
+.expandFieldFilled .expandIconOpen {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expandIconClosed,
+  .expandIconOpen {
+    transition: none;
+  }
+}
+
+.expandToggle:focus-visible {
+  outline: 3px solid var(--w1-flipbook-focus-ring, #1a56db);
+  outline-offset: 2px;
+}
+
+/* Hidden copy of the text, in the font of the input: gives the width. */
+.expandMeasure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  white-space: pre;
+  pointer-events: none;
+}
+
+/* A panel, not a Bento slot: no container sizing, no minimum height. The
+   search bar keeps the navigation widget's spacings (3px around its row,
+   6px between the controls); only the text field has its own.
+
+   The hit cards carry the scheme's tone, at half the tint of the navigation
+   widget (`--w1-widget-tint`, the widget system's own strength of the tone
+   it derives from the primary): same hue and lightness, less saturation, so
+   the search reads as a side errand. The field carries the toolbar colour
+   instead of a translucent white (set on `.field`, as the widget theme's
+   token outranks this one). */
+.area.area {
+  container-type: normal;
+  --w1-widget-min-height: 0;
+  --w1-widget-padding: 3px;
+  --w1-widget-padding-compact: 3px;
+  --w1-widget-tint: 0.5;
+  /* Pressed white circles: a touch of the text colour. */
+  --flipbook-search-press-bg: color-mix(in srgb, var(--w1-flipbook-control-text, #1c1b1a) 7%, var(--w1-flipbook-toolbar, #ffffff));
+}
+
+/* The hits grow out from under the search bar: downwards from the top
+   sheet, from left to right in the landscape one. */
+@media (prefers-reduced-motion: no-preference) {
+  .sheet .body {
+    animation: searchResultsIn 180ms cubic-bezier(0.16, 0.84, 0.24, 1) both;
+  }
+
+  .column .body {
+    animation-name: searchResultsInX;
+  }
+}
+
+@keyframes searchResultsIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes searchResultsInX {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* The widget holds the search controls; the list toggle stands beside it,
+   because it belongs to the panel, not to the search.
+
+   The search controls keep 10px between each other, more than the 6px of the
+   navigation widget: previous and next lie side by side, and a thumb that
+   lands between them must not take the wrong one. The gap stays a dead zone
+   on purpose — a tap into it does nothing instead of the neighbour. */
+.barRow {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Search field with the hit arrows beside it, built like the row of the
+   navigation widget: one 43px control height. */
+.head {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Same height as the round buttons beside it (43px plus the 1px border).
+   The gap keeps the hit arrows clear of the input's native clear button, so
+   stepping through the hits never wipes the query by accident. */
+.field.field {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 43px;
+  padding: 2px 14px 2px 16px;
+  gap: 10px;
+  /* White like the hit arrows beside it, also where it stands alone over
+     the pages (folded sheet, landscape). */
+  background: var(--w1-flipbook-toolbar, #ffffff);
+}
+
+/* Focus marks the field without shouting: a touch of the primary in the
+   hairline instead of the full colour. */
+.field.field:focus-within {
+  border-color: color-mix(in srgb, var(--w1-widget-primary) 35%, var(--flipbook-app-field-border, rgba(45, 57, 78, 0.28)));
+}
+
+/* Previous / next hit beside the field; the row gap keeps them clear of the
+   field's clear button, so stepping never wipes the query. Quieter than the
+   navigation widget's page arrows: the same light circle as the fold toggle
+   instead of a filled primary disc, because the search is a side errand, not
+   the reader's main navigation. */
+.hitArrow.hitArrow {
+  flex: 0 0 43px;
+  box-sizing: border-box;
+  width: 43px;
+  height: 43px;
+  border: 1px solid var(--flipbook-app-field-border, rgba(45, 57, 78, 0.28));
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  color: var(--w1-flipbook-control-text, #1c1b1a);
+}
+
+.hitArrow.hitArrow:hover {
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  color: var(--w1-flipbook-accent, #1c1b1a);
+}
+
+/* A touch slightly larger than the widget's 18px chevrons. */
+.hitArrow.hitArrow > :global(.w1-widget-icon) {
+  width: 20px;
+  height: 20px;
+}
+
+/* Pressed: the circle gives way a little and darkens a touch while the
+   finger is on it (the widget already scales it), so the reader sees which
+   arrow was taken. Nothing stays behind after the tap. */
+.hitArrow.hitArrow:active:not(:disabled) {
+  background: var(--flipbook-search-press-bg);
+}
+
+/* Ghosted at the ends of the list. */
+.hitArrow.hitArrow:disabled {
+  opacity: 0.38;
+  cursor: default;
+  color: var(--w1-flipbook-control-text, #1c1b1a);
+}
+
+/* The round tool buttons are built like the search field: the same surface
+   and hairline, so they read on the sheet and on the bare pages once the
+   sheet is folded away. Hover only speaks through the icon, so a tap on a
+   touch screen cannot leave the button tinted; while pressed the circle
+   gives way a little and darkens a touch (`:active` ends with the touch). */
+.toolToggle.toolToggle {
+  flex: 0 0 43px;
+  box-sizing: border-box;
+  width: 43px;
+  min-width: 43px;
+  height: 43px;
+  min-height: 43px;
+  padding: 0;
+  border: 1px solid var(--flipbook-app-field-border, rgba(45, 57, 78, 0.28));
+  border-radius: 999px;
+  --w1-button-neutral-ghost-bg: var(--w1-flipbook-toolbar, #ffffff);
+  --w1-button-neutral-ghost-color: var(--w1-flipbook-control-text, #1c1b1a);
+  --w1-button-neutral-ghost-hover-bg: var(--w1-flipbook-toolbar, #ffffff);
+  --w1-button-neutral-ghost-hover-color: var(--w1-flipbook-accent, #1c1b1a);
+  --w1-button-neutral-ghost-active-bg: var(--flipbook-search-press-bg);
+  --w1-button-neutral-ghost-active-color: var(--w1-flipbook-accent, #1c1b1a);
+  --w1-button-active-transform: scale(0.94);
+  /* The button's own states would clear the border colour, so the hairline
+     is pinned for every state. */
+  --w1-button-neutral-ghost-border: var(--flipbook-app-field-border, rgba(45, 57, 78, 0.28));
+  --w1-button-neutral-ghost-hover-border: var(--flipbook-app-field-border, rgba(45, 57, 78, 0.28));
+  --w1-button-neutral-ghost-active-border: var(--flipbook-app-field-border, rgba(45, 57, 78, 0.28));
+  --w1-button-focus-ring: 3px solid var(--w1-flipbook-focus-ring, #1a56db);
+  --w1-icon-size-m: 24px;
+}
+
+.body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 10px;
+}
+
+.note {
+  flex: none;
+  margin: 0 0 6px;
+  padding: 0 6px;
+  color: var(--w1-widget-muted);
+  font-size: 0.82rem;
+}
+
+/* The list takes the height that is left and scrolls inside; one rounded
+   card per hit on the sheet surface. The last card keeps clear of the edge
+   once the list is scrolled to its end. */
+.results.results {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  gap: 6px;
+  padding: 0 0 16px;
+  border: 0;
+  overscroll-behavior: contain;
+}
+
+/* The list fades out over 24px at each edge where more hits lie beyond it,
+   instead of cutting a card off: at the bottom while more follow, at the
+   top once it is scrolled. At the start and the end of the list the fade
+   on that edge is gone. Each fade grows over the first / last 40px of the
+   list's own scroll position; a list that does not scroll, or a browser
+   without scroll timelines, shows no fade. */
+@property --flipbook-search-fade-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --flipbook-search-fade-bottom {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@supports (animation-timeline: scroll()) {
+  .results.results {
+    --flipbook-search-fade-mask: linear-gradient(
+      to bottom,
+      transparent,
+      #000 var(--flipbook-search-fade-top),
+      #000 calc(100% - var(--flipbook-search-fade-bottom)),
+      transparent
+    );
+    -webkit-mask-image: var(--flipbook-search-fade-mask);
+    mask-image: var(--flipbook-search-fade-mask);
+    animation:
+      searchResultsFadeTop linear both,
+      searchResultsFadeBottom linear both;
+    animation-timeline: scroll(self), scroll(self);
+    animation-range:
+      0 40px,
+      calc(100% - 40px) 100%;
+  }
+}
+
+@keyframes searchResultsFadeTop {
+  from {
+    --flipbook-search-fade-top: 0px;
+  }
+  to {
+    --flipbook-search-fade-top: 24px;
+  }
+}
+
+@keyframes searchResultsFadeBottom {
+  from {
+    --flipbook-search-fade-bottom: 24px;
+  }
+  to {
+    --flipbook-search-fade-bottom: 0px;
+  }
+}
+
+/* The sheet runs in the toolbar colour, which would swallow the translucent
+   card background, so the cards get a flat surface of their own, no
+   gradient and no arrow — the whole card is the link. Its tone is the
+   scheme's secondary, the warm colour the pressed toolbar toggles and the
+   picked hit already carry: a breath of it on the card (6 %), more on hover
+   (10 %), the picked hit at the strength of `--flipbook-app-secondary-soft`
+   (16 %). The snippet runs in the regular weight so the matched words can
+   stand out in bold. */
+.hit.hit {
+  padding: 12px 18px;
+  background: color-mix(in srgb, var(--flipbook-app-secondary, #8e793e) 6%, var(--w1-flipbook-toolbar, #ffffff));
+}
+
+/* Page number in a narrow column of its own, like a table of contents, the
+   snippet beside it: no extra line for the page. The numbers share one
+   width and align on the right, so the list reads down by page. */
+.hit.hit {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: first baseline;
+  padding-left: 12px;
+}
+
+.hit.hit :global(.w1-widget-result-link__meta) {
+  grid-row: 1;
+  grid-column: 1;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 0;
+}
+
+.hit.hit :global(.w1-widget-result-link__meta > span) {
+  color: var(--w1-widget-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* At most three lines, without a lone word in the last one. The snippet is
+   cut around the match, so the matched words stay in view. */
+.hit.hit :global(.w1-widget-result-link__title) {
+  grid-row: 1;
+  grid-column: 2;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+.hit.hit:hover {
+  background: color-mix(in srgb, var(--flipbook-app-secondary, #8e793e) 10%, var(--w1-flipbook-toolbar, #ffffff));
+}
+
+/* The hit in the reader keeps the stronger tone (over the toolbar colour,
+   so the frosted sheet does not thin it out). */
+.hit.hit[aria-current='true'] {
+  background: color-mix(in srgb, var(--flipbook-app-secondary, #8e793e) 16%, var(--w1-flipbook-toolbar, #ffffff));
+}
+
+/* Matched words: bold in the text colour, no marker background. */
+.match {
+  padding: 0;
+  background: none;
+  color: inherit;
+  font-weight: 600;
+}
+
+/* ---- Desktop sidebar ---------------------------------------------------- */
+
+.sidebar.sidebar {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 340px;
+  height: 100%;
+  padding: 12px;
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  border-right: 1px solid var(--w1-flipbook-border, #b9b5ad);
+}
+
+/* Title on the left, the X at the far right, flush with the pill below. The
+   X no longer stands beside the pill, so it does not take its height: a
+   smaller circle keeps the row flat. */
+.titleRow {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding-left: 6px;
+}
+
+.title {
+  margin: 0;
+  color: var(--w1-widget-foreground);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.titleRow > .toolToggle.toolToggle {
+  flex-basis: 36px;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  --w1-icon-size-m: 20px;
+}
+
+/* In the sidebar column the pill keeps its own height. */
+.sidebar > .bar.bar {
+  flex: none;
+}
+
+/* The list runs to the panel edge, so its scrollbar sits there instead of
+   against the cards; the cards keep their distance through the padding. */
+.sidebar .results {
+  margin-inline-end: -12px;
+  padding-inline-end: 12px;
+}
+
+
+/* ---- Sheets over the pages --------------------------------------------- */
+/* One sheet like the sidebar, attached to an edge of the stage and growing
+   from under the header: the search bar on top, the hit cards below. */
+
+.sheet.sheet {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: auto;
+  padding: 14px 16px 10px;
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  box-shadow: var(--flipbook-shadow-float);
+}
+
+/* Frosted like the app's other floating surfaces (the page popup of the
+   navigation widget uses the same token and blur). Only where the browser
+   can blur the backdrop; elsewhere the sheet stays opaque. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sheet.sheet {
+    background: var(--flipbook-app-popover-bg, rgba(242, 243, 245, 0.94));
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+}
+
+/* As in the sidebar: the scrollbar belongs at the sheet edge, while the
+   cards keep the same distance as on the left. */
+.sheet .results {
+  margin-inline-end: -16px;
+  padding-inline-end: 16px;
+}
+
+/* Portrait: grows down from under the header, full width; the pages below
+   stay in view. */
+.top.top {
+  top: 0;
+  right: 0;
+  left: 0;
+  max-height: min(100%, 88%);
+  border-bottom: 1px solid var(--w1-flipbook-border, #b9b5ad);
+}
+
+/* Landscape: the hit list, shown on demand, opens out of the icon column to
+   the right over the full height. Its top leaves room for the field, which
+   lies over it on the line of the column's first button. */
+.column.column {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(360px, 100%);
+  /* Column padding, the frame's 4px (hairline and padding), the field. */
+  padding-top: calc(max(10px, env(safe-area-inset-top, 0px)) + 7px + 43px + 4px);
+  border-right: 1px solid var(--w1-flipbook-border, #b9b5ad);
+}
+
+/* Folded, the sheet shrinks to its search bar but keeps its surface: the
+   bar carries no backdrop of its own, so it needs the sheet behind it. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .column {
+    animation: searchSheetIn 180ms cubic-bezier(0.16, 0.84, 0.24, 1) both;
+  }
+}
+
+@keyframes searchSheetIn {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* The pill groups field and arrows with the frame of the navigation widget
+   (7px from its outer edge to the controls, its hairline, full radius; 57px
+   high like the widget), but in a neutral tone instead of
+   the scheme colour and without the shadow: the widget below floats over
+   the pages, the search bar sits on its sheet. One frame replaces the
+   hairlines of the parts: inside it the field and the round hit arrows are
+   white surfaces without a line of their own, as the page field and the
+   arrows are in the navigation widget. */
+.bar.bar {
+  flex: 1 1 auto;
+  min-width: 0;
+  container-type: normal;
+  min-height: 0;
+  /* 3px here and the 3px of the shell content (`--w1-widget-padding`), as
+     in the navigation widget: 7px with the hairline. */
+  padding: 3px;
+  overflow: visible;
+  border: 1px solid color-mix(in srgb, var(--flipbook-app-text, #1f1e1c) 20%, transparent);
+  border-radius: 999px;
+  /* The shell's tone rule (`.w1-widget-shell[data-tone='search']`) weighs
+     as much as this one, so the stylesheet order would decide, and the
+     production build loads the widgets after this module (dev the other way
+     round). Its own variable on this element gives both the neutral tone. */
+  --w1-widget-search-gradient: color-mix(in srgb, var(--flipbook-app-text, #1f1e1c) 5%, var(--w1-flipbook-toolbar, #ffffff));
+  background: var(--w1-widget-search-gradient);
+  box-shadow: none;
+}
+
+/* The list toggle beside the portrait pill takes its full height (43px
+   controls + 6px padding + 1px frame on each side), so both share one top
+   and one bottom edge. */
+.barRow > .toolToggle.toolToggle {
+  flex-basis: 57px;
+  width: 57px;
+  min-width: 57px;
+  height: 57px;
+  min-height: 57px;
+}
+
+/* Inside the frame the white surfaces trade their hairline for the raised
+   shadow (FlipbookWidgetTheme.module.css). */
+.bar .field.field,
+.bar .hitArrow.hitArrow {
+  border-color: transparent;
+  box-shadow: var(--flipbook-shadow-raised);
+}
+
+/* Ghosted at the ends of the list, the arrow lies flat. */
+.bar .hitArrow.hitArrow:disabled {
+  box-shadow: none;
+}
+
+/* Focus still marks the field, with the same touch of the primary. */
+.bar .field.field:focus-within {
+  border-color: color-mix(in srgb, var(--w1-widget-primary) 35%, transparent);
+}
+
+
+/* ---- Search range: this issue / all issues ------------------------------- */
+
+/* Two options above the field, in the look of the pill below: its frame
+   (hairline, neutral tone), the active option a white surface with the
+   raised shadow instead of a line of its own (line or shadow, never both).
+   10px to the pill like all search controls. */
+.scope {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  margin: 0 0 10px;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--flipbook-app-text, #1f1e1c) 20%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--flipbook-app-text, #1f1e1c) 5%, var(--w1-flipbook-toolbar, #ffffff));
+}
+
+.scopeOption {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--w1-widget-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.scopeOptionOn {
+  background: var(--w1-flipbook-toolbar, #ffffff);
+  box-shadow: var(--flipbook-shadow-raised);
+  color: var(--w1-widget-foreground);
+  font-weight: 600;
+}
+
+.scopeOption:focus-visible {
+  outline: 2px solid var(--flipbook-app-secondary, #8e793e);
+  outline-offset: 1px;
+}
+
+/* Name of an issue above its hits when several issues answer. */
+.groupTitle {
+  margin-top: 10px;
+  padding: 0 12px;
+  font-weight: 700;
+}
+
+.groupTitle:first-child {
+  margin-top: 0;
+}

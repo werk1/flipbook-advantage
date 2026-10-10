@@ -95,6 +95,15 @@ const nextConfig = {
       './node_modules/unicode-trie/**/*',
       './node_modules/tiny-inflate/**/*',
       './node_modules/base64-js/**/*',
+      // Server-side PDF extraction imports pdfjs-dist via `webpackIgnore`,
+      // which the tracer cannot see.
+      './node_modules/pdfjs-dist/legacy/build/**/*',
+      './node_modules/pdfjs-dist/package.json',
+      // pdfjs-dist loads @napi-rs/canvas (+ its per-platform native binary,
+      // e.g. canvas-linux-x64-musl) via a dynamic require the tracer cannot
+      // see; without it ImageData/Path2D are not polyfilled on the server.
+      './node_modules/@napi-rs/canvas/**/*',
+      './node_modules/@napi-rs/canvas-*/**/*',
     ],
   },
   transpilePackages: [
@@ -123,11 +132,11 @@ const nextConfig = {
     return [
       {
         source: '/api/media/file/:file(fb-.*)',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=3600' }],
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=43200' }],
       },
     ]
   },
-  serverExternalPackages: ['@werk1/w1-system-font-manager', 'woff2-encode-wasm'],
+  serverExternalPackages: ['@werk1/w1-system-font-manager', 'woff2-encode-wasm', 'pdf-lib'],
   webpack(config) {
     config.experiments = {
       ...(config.experiments ?? {}),

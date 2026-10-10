@@ -19,11 +19,22 @@ This is the top-level map for `flipbook-advantage`. Read this first when decidin
 
 ## Module Rule Snapshots
 
-- `flipbook` from cloned/file snapshot, version `2026-09-29`, package integration `file: sibling package`
+- `flipbook` from cloned/file snapshot, version `2026-10-08`, package integration `file: sibling package`
 
 ## Technology Stack
 
-- Next.js App Router app host.
+W1 work is centered on:
+
+- Next.js App Router app hosts.
+- Payload CMS 3 collections, globals, admin components, generated types and
+  import maps.
+- React 19 package components and hooks.
+- TypeScript package exports and local `file:../w1-system-*` dependencies.
+- GSAP ScrollTrigger/gesture/runtime packages.
+- Media, font, player, block, article and IDML package boundaries.
+- Docker and generated app deployment paths owned by app hosts and the app
+  creator.
+
 - Payload CMS 3 collections, globals, admin components, generated types and import maps.
 - React 19 package components and hooks.
 - TypeScript package exports and `workspace: file:../w1-system-* (packages already present)` dependencies.
@@ -61,6 +72,33 @@ This is the top-level map for `flipbook-advantage`. Read this first when decidin
 ## Dependency Direction
 
 ```text
+foundation/types/media/font
+        -> rendering infrastructure
+        -> runtime and interaction packages
+        -> player packages
+        -> block, article, IDML and ticketing packages
+        -> app hosts and generated apps
+        -> app creator/deployment tooling
+```
+
+Rules:
+
+- App hosts own Next.js, Payload, routing, runtime bootstrap, section
+  composition, generated Payload types and deployment wiring.
+- Reusable W1 packages own package-neutral runtime behavior and public exports.
+- Packages must not import app-host internals such as `@/payload-types`,
+  `@/stores/boundStore`, app routes or app-specific resolvers.
+- App creator owns generated-app source templates, module catalog, copy rules
+  and deployment tooling.
+- Generated apps consume packages; they are not the source of package truth.
+
+Font ownership follows the same direction. Core app hosts own the Payload
+`App Fonts` control plane and runtime routes. `w1-system-font-manager` owns the
+neutral analysis, import, snapshot, CSS and artifact-bundle data plane.
+`w1-system-local-font-manager` is a legacy build-time utility for unmigrated
+projects, not a parallel runtime authority. Article/IDML fonts remain a
+separate unchanged system.
+
 W1 packages -> generated app host -> deployment scripts
 ```
 

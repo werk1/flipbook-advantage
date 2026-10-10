@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   COLOR_SCHEME_TOKENS,
   DEFAULT_COLOR_SCHEMES,
+  isOptionalToken,
   isSafeCssValue,
   schemeModePreviewCss,
   type ColorSchemeMode,
@@ -114,7 +115,12 @@ export function ColorSchemeEditor() {
     if (!draft) return new Set<string>()
     const bad = new Set<string>()
     for (const m of ['light', 'dark'] as Mode[]) {
-      for (const { key } of COLOR_SCHEME_TOKENS) if (!isSafeCssValue(draft[m][key])) bad.add(`${m}.${key}`)
+      for (const token of COLOR_SCHEME_TOKENS) {
+        const value = draft[m][token.key]
+        // Optional tokens may stay empty (standard colour of the viewer).
+        if (isOptionalToken(token) && !value) continue
+        if (!isSafeCssValue(value)) bad.add(`${m}.${token.key}`)
+      }
     }
     return bad
   }, [draft])
@@ -209,7 +215,7 @@ export function ColorSchemeEditor() {
       </div>
 
       {COLOR_SCHEME_TOKENS.map(({ key, label, hint }) => {
-        const value = draft[mode][key]
+        const value = draft[mode][key] ?? ''
         const bad = invalid.has(`${mode}.${key}`)
         return (
           <label key={key} className={styles.field}>
@@ -229,6 +235,7 @@ export function ColorSchemeEditor() {
                 type="text"
                 className={bad ? styles.invalid : undefined}
                 value={value}
+                placeholder="Standard"
                 onChange={(e) => setToken(key, e.currentTarget.value)}
               />
             </span>

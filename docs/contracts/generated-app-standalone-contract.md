@@ -2,7 +2,7 @@
 
 Status: active
 App: `flipbook-advantage`
-Generated: 2026-10-01T13:55:44.426Z
+Generated: 2026-10-10T07:43:43.554Z
 
 ## Rule
 

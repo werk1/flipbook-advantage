@@ -7,6 +7,9 @@ import '@werk1/w1-system-widgets/styles.css'
 import './global.css'
 import './theme/palettes.css'
 
+const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
+const UMAMI_HEATMAP = process.env.NEXT_PUBLIC_UMAMI_HEATMAP === 'true'
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -19,9 +22,6 @@ export const metadata: Metadata = {
   title: 'flipbook-advantage',
   description: 'flipbook-advantage',
 }
-
-const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
-const UMAMI_HEATMAP = process.env.NEXT_PUBLIC_UMAMI_HEATMAP === 'true'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const scheme = await getActiveColorScheme()
