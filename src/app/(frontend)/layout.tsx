@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   description: 'flipbook-advantage',
 }
 
-const UMAMI_WEBSITE_ID =
-  process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID ?? 'f22e68e8-da0a-4db4-9158-05208f1e4f89'
+const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
+const UMAMI_HEATMAP = process.env.NEXT_PUBLIC_UMAMI_HEATMAP === 'true'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const scheme = await getActiveColorScheme()
@@ -31,11 +31,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="stylesheet" href="/api/app-fonts.css" />
         {/* Values are validated (colours/gradients only) before output. */}
         <style id="app-color-scheme" dangerouslySetInnerHTML={{ __html: scheme.css }} />
-        <Script
-          src="https://umami.werk1.at/script.js"
-          data-website-id={UMAMI_WEBSITE_ID}
-          strategy="afterInteractive"
-        />
+        {UMAMI_WEBSITE_ID ? (
+          <Script
+            src="https://umami.werk1.at/script.js"
+            data-website-id={UMAMI_WEBSITE_ID}
+            strategy="afterInteractive"
+          />
+        ) : null}
+        {UMAMI_WEBSITE_ID && UMAMI_HEATMAP ? (
+          <Script
+            src="https://umami.werk1.at/recorder.js"
+            data-website-id={UMAMI_WEBSITE_ID}
+            strategy="afterInteractive"
+          />
+        ) : null}
       </head>
       <body>
         <LandscapeQrOverlay />
