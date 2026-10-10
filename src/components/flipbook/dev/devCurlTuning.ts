@@ -16,6 +16,7 @@ const STORAGE_KEY = 'flipbook-dev-curl-tuning'
 export const devCurlTuning: W1FlipbookCurlTuning = { ...DEFAULT_CURL_TUNING }
 
 export function loadDevCurlTuning(): void {
+  if (!IS_DEV) return
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (raw) Object.assign(devCurlTuning, JSON.parse(raw))
@@ -25,6 +26,7 @@ export function loadDevCurlTuning(): void {
 }
 
 export function saveDevCurlTuning(): void {
+  if (!IS_DEV) return
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(devCurlTuning))
   } catch {
